@@ -61,7 +61,7 @@ VAR
 roots(VAR, modulus = TRUE)
 serial.test(VAR, lags.bg = 12, type = "ES")
 
-# SVAR estimation ####
+# SVAR estimation
 
 # A Matrix
 #esta representa a la matriz A0^(-1)
@@ -94,7 +94,9 @@ source("PS2_SVAR_Bootstrap.R")
 source("PS2_SVAR_Plots.R")
 
 
-#quiza podriamos hacer graficos mas lindos con ggplot
+#Reporte de resultados inciso 1
+#(quiza podriamos hacer graficos mas lindos con ggplot)
+
 # IRF
 SVAR.SIRF <- SVAR.sirf(SVAR, H)
 plot.sirf(SVAR.SIRF, m, H)
@@ -114,3 +116,76 @@ plot.hd(Yd, SVAR.HD, m, pmax)
 # ERPT
 SVAR.ERPT <- SVAR.erpt(SVAR, H_ERPT, 3, 2, cumulative = TRUE)
 plot.erpt(SVAR.ERPT, H_ERPT)
+
+#PENDIENTE: Revisar cuestiones de estacionariedad de las series.
+
+
+# Inciso 2 ####
+#Estimamos el modelo sin el índice de precios internos.
+
+#Duda: ¿hay que hacer esto de nuevo o con los resultados que obtuvimos con las 3 variables alcanza?
+Yd_2 <- Yd[, 2:3]
+popt_2 <- VARselect(Yd_2, lag.max = pmax, type = "const")
+popt_2
+p_2 <- popt_2$selection[1] # AIC
+
+Yd0_2 <- Yd_2[1:pmax, ] # Initial values
+Ydt_2 <- Yd_2[(pmax - p_2 + 1):nrow(Yd_2), ] # Starting in Jan-04
+
+# Estimation
+VAR_2 <- VAR(Ydt_2, p = p_2, type = "const")
+
+m_2 <- VAR_2$K # No. of variables in the VAR
+N_2 <- VAR_2$obs
+
+roots(VAR_2, modulus = TRUE)
+serial.test(VAR_2, lags.bg = 12, type = "ES")
+
+# SVAR estimation
+
+# A Matrix
+Amat_2 <- diag(m_2)
+for (i in 2:m_2) {
+  for (j in 1:(i - 1)) {
+    Amat_2[i, j] <- NA
+  }
+}
+
+# B Matrix
+Bmat_2 <- matrix(0, m_2, m_2)
+for (i in 1:m_2) {
+  Bmat_2[i, i] <- NA
+}
+
+# SVAR estimation (AB model configuration)
+SVAR_2 <- SVAR(VAR_2, Amat = Amat_2, Bmat = Bmat_2, lrtest = FALSE)
+SVAR_2
+
+#Reportamos resultados modelo inciso 2.
+
+#hay que volver a llamarla m porque las funciones usadas a continuación están definidas usando m, y la cantidad de variables no se puede especificar de otra manera
+#después de haber calculado las cosas que queremos volvemos a darle el valor inicial.
+m <- m_2
+
+# IRF
+SVAR_2.SIRF <- SVAR.sirf(SVAR_2, H)
+plot.sirf(SVAR_2.SIRF, m, H)
+
+# Cumulative IRF
+SVAR_2.SIRF.c <- SVAR.sirf(SVAR_2, H, cumulative = TRUE)
+plot.sirf(SVAR_2.SIRF.c, m, H)
+
+# FEVD
+SVAR_2.FEVD <- SVAR.fevd(SVAR_2, H)
+plot.fevd(SVAR_2.FEVD, m, H)
+
+# HD
+SVAR_2.HD <- SVAR.hd(SVAR_2)
+plot.hd(Yd_2, SVAR_2.HD, m, pmax)
+
+# ERPT
+SVAR_2.ERPT <- SVAR.erpt(SVAR_2, H_ERPT, 2, 1, cumulative = TRUE)
+plot.erpt(SVAR_2.ERPT, H_ERPT)
+
+#Pendiente: comparar con resultados modelo inciso 1.
+
