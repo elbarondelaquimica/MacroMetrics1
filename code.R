@@ -196,8 +196,7 @@ plot.erpt(SVAR_2.ERPT, H_ERPT)
 
 
 
-###
-#Punto 10
+# Punto 10 ####
 #Forma 1: fuente oficial
 
 #Descargamos los valores de la fuente, tomando el promedio mensual:
@@ -205,7 +204,7 @@ dolar_ccl <- read.csv(url("https://apis.datos.gob.ar/series/api/series/?collapse
 
 #Construimos la serie y la restringimos
 dolar_ccl <- ts(dolar_ccl$tipo_cambio_implicito_en_adrs, start = c(2002, 04), frequency = 12)
-dolar_ccl <- window(dolar_ccl, start = c(2004, 01), end = c(2020, 01))
+dolar_ccl <- window(dolar_ccl, start = c(2004, 01), end = c(2019, 12))
 
 #Graficamos para verificar
 plot(dolar_ccl, type = "l",lwd=2, col="black", xlab="",ylab="",bty="n", main="CCL implícito en ADRs", ylim=c(0,80))
@@ -245,3 +244,33 @@ sd(discrepancia)
 ts.plot(discrepancia)
 #Conclusión: aunque en promedio no son muy distintas, las medidas difieren bastante en algunos meses. Parece ser mejor usar el oficial, ante la duda.
 
+
+# Punto 11 ####
+#Construimos la brecha
+er_para_brecha = window(er, start = c(2004, 01), end = c(2019, 12))
+brecha <- (dolar_ccl - er_para_brecha)/er_para_brecha
+plot(brecha)
+
+
+
+#Punto 12 ####
+#Tomamos como períodos con controles de capitales al período octubre 2011-diciembre2015 y desde septiembre 2019.
+#Fuentes: AFIP con la Resolución General 3210 y la Resolución General 3819 , Poder Ejecutivo Nacional con DNU 19/609
+
+#Creamos dos variables dummies:
+library(tstools) 
+
+dummy_cepo1 <- create_dummy_ts(end_basic = c(2019,12), dummy_start = c(2011,10), dummy_end =c(2015,12), sp= NULL, start_basic = c(2004, 01), frequency = 12)
+dummy_cepo2 <- create_dummy_ts(end_basic = c(2019,12), dummy_start = c(2019,09), dummy_end =c(2019,12), sp= NULL, start_basic <- c(2004, 01), frequency = 12)
+
+#Creamos la variable de la brecha que toma valor 0 cuando no hay controles de capitales:
+brecha_con_cepo1 <- brecha*dummy_cepo1
+brecha_con_cepo1 <- window(brecha_con_cepo1, end = c(2019, 08))
+brecha_con_cepo2 <- brecha*dummy_cepo2
+brecha_con_cepo2 <- window(brecha_con_cepo2, start = c(2019, 09))
+
+brecha_con_cepo <- concat_ts(brecha_con_cepo1, brecha_con_cepo2)
+plot(brecha_con_cepo)
+
+#Eliminamos variables intermedias:
+remove(brecha_con_cepo1, brecha_con_cepo2)
