@@ -200,7 +200,7 @@ plot.erpt(SVAR_2.ERPT, H_ERPT)
 #Punto 10
 #Forma 1: fuente oficial
 
-#Descargamos los valores de la fuente:
+#Descargamos los valores de la fuente, tomando el promedio mensual:
 dolar_ccl <- read.csv(url("https://apis.datos.gob.ar/series/api/series/?collapse=month&collapse_aggregation=avg&ids=168.1_T_CAMBIDRS_D_0_0_29&limit=5000&format=csv"))
 
 #Construimos la serie y la restringimos
@@ -218,7 +218,7 @@ plot(dolar_ccl, type = "l",lwd=2, col="black", xlab="",ylab="",bty="n", main="CC
 #En el caso del Grupo Financiero Galicia S.A. (Banco Galicia), el factor correspondiente es 10.
 
 
-#Utilizamos una descarga automática basada en Yahoo Finance de los valores en NY y en BA:
+#Utilizamos una descarga automática basada en Yahoo Finance de los valores en NY y en BA, tomando precio de cierre mensual ajustado:
 library(tseries)
 P_adr <- get.hist.quote(instrument = "GGAL", start = "2004-01-01", end = "2019-12-31", 
                     quote = "AdjClose", provider = "yahoo", compression = "m", 
