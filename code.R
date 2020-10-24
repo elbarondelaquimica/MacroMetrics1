@@ -28,8 +28,8 @@ popt
 p <- popt$selection[1] # AIC
 
 Yd0 <- Yd[1:pmax, ] # Initial values
-#MARTIN: No entiendo muy bien por qu�, pero solo eliminamos 10 valores, no 12. 
-#MARTIN: �No deber�amos comernos �nicamente los primeros 3 valores?
+#MARTIN: No entiendo muy bien por qué, pero solo eliminamos 10 valores, no 12. 
+#MARTIN: ¿No deberíamos comernos únicamente los primeros 3 valores?
 Ydt <- Yd[(pmax - p + 1):nrow(Yd), ] # Starting in Jan-04
 
 # Estimation
@@ -121,9 +121,9 @@ plot.erpt(SVAR.ERPT, H_ERPT)
 
 
 # Inciso 2 ####
-#Estimamos el modelo sin el �ndice de precios internos.
+#Estimamos el modelo sin el índice de precios internos.
 
-#Duda: �hay que hacer esto de nuevo o con los resultados que obtuvimos con las 3 variables alcanza?
+#Duda: ¿hay que hacer esto de nuevo o con los resultados que obtuvimos con las 3 variables alcanza?
 Yd_2 <- Yd[, 2:3]
 popt_2 <- VARselect(Yd_2, lag.max = pmax, type = "const")
 popt_2
@@ -163,8 +163,8 @@ SVAR_2
 
 #Reportamos resultados modelo inciso 2.
 
-#hay que volver a llamarla m porque las funciones usadas a continuaci�n est�n definidas usando m, y la cantidad de variables no se puede especificar de otra manera
-#despu�s de haber calculado las cosas que queremos volvemos a darle el valor inicial.
+#hay que volver a llamarla m porque las funciones usadas a continuación están definidas usando m, y la cantidad de variables no se puede especificar de otra manera
+#después de haber calculado las cosas que queremos volvemos a darle el valor inicial.
 m <- m_2
 
 # IRF
@@ -188,4 +188,60 @@ SVAR_2.ERPT <- SVAR.erpt(SVAR_2, H_ERPT, 2, 1, cumulative = TRUE)
 plot.erpt(SVAR_2.ERPT, H_ERPT)
 
 #Pendiente: comparar con resultados modelo inciso 1.
+
+
+
+
+
+
+
+
+###
+#Punto 10
+#Forma 1: fuente oficial
+
+#Descargamos los valores de la fuente:
+dolar_ccl <- read.csv(url("https://apis.datos.gob.ar/series/api/series/?collapse=month&collapse_aggregation=avg&ids=168.1_T_CAMBIDRS_D_0_0_29&limit=5000&format=csv"))
+
+#Construimos la serie y la restringimos
+dolar_ccl <- ts(dolar_ccl$tipo_cambio_implicito_en_adrs, start = c(2002, 04), frequency = 12)
+dolar_ccl <- window(dolar_ccl, start = c(2004, 01), end = c(2020, 01))
+
+#Graficamos para verificar
+plot(dolar_ccl, type = "l",lwd=2, col="black", xlab="",ylab="",bty="n", main="CCL implícito en ADRs", ylim=c(0,80))
+
+
+#Forma 2: tomando valores de la acción del Banco Galicia
+#Para obtener tipo de cambio implícito en los ADR (Contado Contra Liquidación)
+#es necesario hacer la siguiente cuenta:
+#Dólar CCL = (Precio Local de Acción/Precio del ADR)* Factor de conversión
+#En el caso del Grupo Financiero Galicia S.A. (Banco Galicia), el factor correspondiente es 10.
+
+
+#Utilizamos una descarga automática basada en Yahoo Finance de los valores en NY y en BA:
+library(tseries)
+P_adr <- get.hist.quote(instrument = "GGAL", start = "2004-01-01", end = "2019-12-31", 
+                    quote = "AdjClose", provider = "yahoo", compression = "m", 
+                    retclass = "zoo")
+plot(P_adr,type = "l",lwd=2, col="black", xlab="",ylab="",bty="n", main="GGAL Adjusted Price", ylim=c(0,70))
+
+P_local <- get.hist.quote(instrument = "GGAL.BA", start = "2004-01-01", end = "2019-12-31", 
+                          quote = "AdjClose", provider = "yahoo", compression = "m", 
+                          retclass = "zoo")
+plot(P_local,type = "l",lwd=2, col="black", xlab="",ylab="",bty="n", main="GGAL.BA Adjusted Price", ylim=c(0,170))
+
+#Construimos la serie
+dolar_implicito <- (P_local/P_adr)*10
+dolar_ccl2 = ts(dolar_implicito, start = c(2004, 01), frequency = 12)
+
+#Graficamos para verficar
+plot(dolar_ccl2, type = "l",lwd=2, col="black", xlab="",ylab="",bty="n", main="CCL a partir de $GGAL", ylim=c(0,140))
+
+
+#Analizamos y graficamos las dos alternativas para comparar:
+discrepancia = (dolar_ccl-dolar_ccl2)/dolar_ccl
+mean(discrepancia)
+sd(discrepancia)
+ts.plot(discrepancia)
+#Conclusión: aunque en promedio no son muy distintas, las medidas difieren bastante en algunos meses. Parece ser mejor usar el oficial, ante la duda.
 
