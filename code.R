@@ -433,3 +433,15 @@ library(tstools)
 dummy_cepo1 <- create_dummy_ts(end_basic = c(2019,12), dummy_start = c(2011,10), dummy_end =c(2015,12), sp= NULL, start_basic = c(2004, 01), frequency = 12)
 dummy_cepo2 <- create_dummy_ts(end_basic = c(2019,12), dummy_start = c(2019,09), dummy_end =c(2019,12), sp= NULL, start_basic = c(2004, 01), frequency = 12)
 
+#Creamos la variable de la brecha que toma valor 0 cuando no hay controles de capitales:
+brecha_con_cepo1 <- brecha_log*dummy_cepo1
+brecha_con_cepo1 <- window(brecha_con_cepo1, end = c(2019, 08))
+brecha_con_cepo2 <- brecha_log*dummy_cepo2
+brecha_con_cepo2 <- window(brecha_con_cepo2, start = c(2019, 09))
+
+brecha_con_cepo_log <- concat_ts(brecha_con_cepo1, brecha_con_cepo2)
+plot(brecha_con_cepo_log)
+
+#Eliminamos variables intermedias:
+remove(brecha_con_cepo1, brecha_con_cepo2)
+
