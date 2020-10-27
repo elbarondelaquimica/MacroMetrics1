@@ -297,7 +297,7 @@ for (i in 1:m_10) {
 SVAR_10 <- SVAR(VAR_10, Amat = Amat_10, Bmat = Bmat_10, lrtest = FALSE)
 
 # Reportamos los resultados del modelo
-
+m <- m_10
 # IRF
 SVAR_10.SIRF <- SVAR.sirf(SVAR_10, H)
 plot.sirf(SVAR_10.SIRF, m=m_10, H)
@@ -399,3 +399,25 @@ for (i in 1:m_11) {
 
 # SVAR estimation (AB model configuration)
 SVAR_11 <- SVAR(VAR_11, Amat = Amat_11, Bmat = Bmat_11, lrtest = FALSE)
+
+
+# Replicación con bootstrap y gráfico final con bandas de confianza
+a <- 0.95 # Confidence level
+R <- 1000 # No. of bootstrap replications
+
+Yb_11 <- boot.rb.replicate(VAR_11, Yd0_11, pmax, R)
+N <- N_11
+SVAR.SIRF.boot_11 <- SVAR.sirf.boot(SVAR_11, Amat_11, Bmat_11, Yb_11, pmax, H, a, R)
+plot.sirf.boot(SVAR.SIRF.boot_11, m = m_11, H)
+
+# Cumulative IRF (bootstrap)
+SVAR.SIRF.c.boot_11 <- SVAR.sirf.boot(SVAR_11, Amat_11, Bmat_11, Yb_11, pmax, H, a, R, cumulative = TRUE)
+plot.sirf.boot(SVAR.SIRF.c.boot_11, m = m_11 , H)
+
+# FEVD (bootstrap)
+SVAR.FEVD.boot_11 <- SVAR.fevd.boot(SVAR_11, Amat_11, Bmat_11, Yb_11, pmax, H, a, R)
+plot.fevd.boot(SVAR.FEVD.boot_11, m = m_11, H)
+
+# ERPT (bootstrap)
+SVAR.ERPT.boot_11 <- SVAR.erpt.boot(SVAR_11, Amat_11, Bmat_11, Yb_11, pmax, H_ERPT, 4, 2, a, R, cumulative = TRUE) # DUDA: Acá puse el 4 en vez del 3 porque sino había un problema con las dimensiones y no estimaba, pero NO ESTOY muy seguro. No me termina de quedar claro qué representan estos argumentos (los números) en la función.
+plot.erpt.boot(SVAR.ERPT.boot_11, H_ERPT)
