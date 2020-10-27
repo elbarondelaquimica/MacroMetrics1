@@ -189,6 +189,466 @@ plot.erpt(SVAR_2.ERPT, H_ERPT)
 
 #Pendiente: comparar con resultados modelo inciso 1.
 
+# Punto 3 ### run each subsample and repeat using 3 lags
+
+#sub-sample 1: from January 2005 to July 2011
+
+remove(list = ls(all.names = TRUE))
+gc()
+
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+
+source("PS1_Data.R")
+library(vars)
+Yl.f <- cbind(pcom, er, pc)
+Yl.f <- log(Yl.f) 
+Yd.f <- 100 * diff(Yl.f)
+
+Yl <- window(Yl.f, start = c(2003, 01), end = c(2019, 12))
+Yd <- window(Yd.f, start = c(2003, 01), end = c(2019, 12))
+
+Yone <- window(Yd.f, start = c(2004, 01), end = c(2011, 07))
+
+pmax <- 12
+
+popt <- VARselect(Yone, lag.max = pmax, type = "const")
+popt
+p <- popt$selection[1] # [check and change for each sample} /// [change again if autocorrelated errors]
+
+Yone0 <- Yone[1:pmax, ] # Initial values, 12M
+Yonet <- Yone[(pmax - p + 1):nrow(Yone), ]
+
+VAR <- VAR(Yonet, p = p, type = "const")
+m <- VAR$K
+N <- VAR$obs
+matC <- function(m, p, vx) {
+  vy <- setdiff(1:m, vx)
+  Cm <- matrix(1, m, m * p + 1)
+  for (i in vx) {
+    for (l in 1:p) {
+      for (j in vy) {
+        Cm[i, m * (l - 1) + j] <- 0
+      }
+    }
+  }
+  return(Cm)
+}
+VAR <- restrict(VAR, method = "man", resmat = matC(m, p, 1))
+
+roots(VAR, modulus = TRUE) #model check
+serial.test(VAR, lags.bg = 12, type = "ES") #model check
+
+Amat <- diag(m)
+for (i in 2:m) {
+  for (j in 1:(i - 1)) {
+    Amat[i, j] <- NA
+  }
+}
+Bmat <- matrix(0, m, m)
+for (i in 1:m) {
+  Bmat[i, i] <- NA
+}
+SVAR <- SVAR(VAR, Amat = Amat, Bmat = Bmat, lrtest = FALSE)
+
+P <- solve(SVAR$A, SVAR$B)
+pars.R <- Bcoef(VAR) # VAR
+pars.S <- solve(P, pars.R) #SVAR #check no feedback PCOM
+
+source("PS2_SVAR_Analysis.R")
+source("PS2_SVAR_Bootstrap.R")
+source("PS2_SVAR_Plots.R")
+
+H <- 18 # Horizon IR
+H_ERPT <- 120 # Horizon ERPT - variance decomp.
+a <- 0.95 # Confidence level
+R <- 500 # No. of bootstrap replications
+Yb <- boot.rb.replicate(VAR, Yone0, pmax, R)
+
+# IRF (bootstrap)
+SVAR.SIRF.boot <- SVAR.sirf.boot(SVAR, Amat, Bmat, Yb, pmax, H, a, R)
+plot.sirf.boot(SVAR.SIRF.boot, m, H)
+
+# Cumulative IRF (bootstrap)
+SVAR.SIRF.c.boot <- SVAR.sirf.boot(SVAR, Amat, Bmat, Yb, pmax, H, a, R, cumulative = TRUE)
+plot.sirf.boot(SVAR.SIRF.c.boot, m, H)
+
+# FEVD (bootstrap)
+SVAR.FEVD.boot <- SVAR.fevd.boot(SVAR, Amat, Bmat, Yb, pmax, H, a, R)
+plot.fevd.boot(SVAR.FEVD.boot, m, H)
+
+# ERPT (bootstrap)
+SVAR.ERPT.boot <- SVAR.erpt.boot(SVAR, Amat, Bmat, Yb, pmax, H_ERPT, 3, 2, a, R, cumulative = TRUE)
+plot.erpt.boot(SVAR.ERPT.boot, H_ERPT)
+
+#sub-sample 2: from August 2011 to September 2015
+
+remove(list = ls(all.names = TRUE))
+gc()
+
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+
+source("PS1_Data.R")
+
+Yl.f <- cbind(pcom, er, pc)
+Yl.f <- log(Yl.f) 
+Yd.f <- 100 * diff(Yl.f)
+
+Yl <- window(Yl.f, start = c(2003, 01), end = c(2019, 12))
+Yd <- window(Yd.f, start = c(2003, 01), end = c(2019, 12))
+
+pmax <- 12
+
+Ytwo <- window(Yd.f, start = c(2010, 08), end = c(2015, 09))
+
+popt <- VARselect(Ytwo, lag.max = pmax, type = "const")
+popt
+p <- popt$selection[1] # [check and change for each sample} /// [change again if autocorrelated errors]
+
+
+Ytwo0 <- Ytwo[1:pmax, ] # Initial values, 12M
+Ytwot <- Ytwo[(pmax - p + 1):nrow(Ytwo), ]
+
+VAR <- VAR(Ytwot, p = p, type = "const")
+m <- VAR$K
+N <- VAR$obs
+matC <- function(m, p, vx) {
+  vy <- setdiff(1:m, vx)
+  Cm <- matrix(1, m, m * p + 1)
+  for (i in vx) {
+    for (l in 1:p) {
+      for (j in vy) {
+        Cm[i, m * (l - 1) + j] <- 0
+      }
+    }
+  }
+  return(Cm)
+}
+VAR <- restrict(VAR, method = "man", resmat = matC(m, p, 1))
+
+roots(VAR, modulus = TRUE) #model check
+serial.test(VAR, lags.bg = 12, type = "ES") #model check
+
+Amat <- diag(m)
+for (i in 2:m) {
+  for (j in 1:(i - 1)) {
+    Amat[i, j] <- NA
+  }
+}
+Bmat <- matrix(0, m, m)
+for (i in 1:m) {
+  Bmat[i, i] <- NA
+}
+SVAR <- SVAR(VAR, Amat = Amat, Bmat = Bmat, lrtest = FALSE)
+
+
+P <- solve(SVAR$A, SVAR$B)
+pars.R <- Bcoef(VAR) # VAR
+pars.S <- solve(P, pars.R) #SVAR #check no feedback PCOM
+
+source("PS2_SVAR_Analysis.R")
+source("PS2_SVAR_Bootstrap.R")
+source("PS2_SVAR_Plots.R")
+
+H <- 18 # Horizon IR
+H_ERPT <- 120 # Horizon ERPT - variance decomp.
+a <- 0.95 # Confidence level
+R <- 500 # No. of bootstrap replications
+Yb <- boot.rb.replicate(VAR, Ytwo0, pmax, R)
+
+# IRF (bootstrap)
+SVAR.SIRF.boot <- SVAR.sirf.boot(SVAR, Amat, Bmat, Yb, pmax, H, a, R)
+plot.sirf.boot(SVAR.SIRF.boot, m, H)
+
+# Cumulative IRF (bootstrap)
+SVAR.SIRF.c.boot <- SVAR.sirf.boot(SVAR, Amat, Bmat, Yb, pmax, H, a, R, cumulative = TRUE)
+plot.sirf.boot(SVAR.SIRF.c.boot, m, H)
+
+# FEVD (bootstrap)
+SVAR.FEVD.boot <- SVAR.fevd.boot(SVAR, Amat, Bmat, Yb, pmax, H, a, R)
+plot.fevd.boot(SVAR.FEVD.boot, m, H)
+
+# ERPT (bootstrap)
+SVAR.ERPT.boot <- SVAR.erpt.boot(SVAR, Amat, Bmat, Yb, pmax, H_ERPT, 3, 2, a, R, cumulative = TRUE)
+plot.erpt.boot(SVAR.ERPT.boot, H_ERPT)
+
+# sub-sample 3: from October 2015 to August 2019
+
+remove(list = ls(all.names = TRUE))
+gc()
+
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+
+source("PS1_Data.R")
+
+Yl.f <- cbind(pcom, er, pc)
+Yl.f <- log(Yl.f) 
+Yd.f <- 100 * diff(Yl.f)
+
+Yl <- window(Yl.f, start = c(2003, 01), end = c(2019, 12))
+Yd <- window(Yd.f, start = c(2003, 01), end = c(2019, 12))
+
+pmax <- 12
+
+Ythree <- window(Yd.f, start = c(2014, 10), end = c(2019, 08))
+
+popt <- VARselect(Ythree, lag.max = pmax, type = "const")
+popt
+p <- popt$selection[2] # [check and change for each sample} /// [change again if autocorrelated errors]
+
+Ythree0 <- Ythree[1:pmax, ] # Initial values, 12M
+Ythreet <- Ythree[(pmax - p + 1):nrow(Ythree), ]
+
+VAR <- VAR(Ythreet, p = p, type = "const")
+m <- VAR$K
+N <- VAR$obs
+matC <- function(m, p, vx) {
+  vy <- setdiff(1:m, vx)
+  Cm <- matrix(1, m, m * p + 1)
+  for (i in vx) {
+    for (l in 1:p) {
+      for (j in vy) {
+        Cm[i, m * (l - 1) + j] <- 0
+      }
+    }
+  }
+  return(Cm)
+}
+VAR <- restrict(VAR, method = "man", resmat = matC(m, p, 1))
+
+roots(VAR, modulus = TRUE) #model check
+serial.test(VAR, lags.bg = 12, type = "ES") #model check
+
+Amat <- diag(m)
+for (i in 2:m) {
+  for (j in 1:(i - 1)) {
+    Amat[i, j] <- NA
+  }
+}
+Bmat <- matrix(0, m, m)
+for (i in 1:m) {
+  Bmat[i, i] <- NA
+}
+SVAR <- SVAR(VAR, Amat = Amat, Bmat = Bmat, lrtest = FALSE)
+
+P <- solve(SVAR$A, SVAR$B)
+pars.R <- Bcoef(VAR) # VAR
+pars.S <- solve(P, pars.R) #SVAR #check no feedback PCOM
+
+source("PS2_SVAR_Analysis.R")
+source("PS2_SVAR_Bootstrap.R")
+source("PS2_SVAR_Plots.R")
+
+H <- 18 # Horizon IR
+H_ERPT <- 120 # Horizon ERPT - variance decomp.
+a <- 0.95 # Confidence level
+R <- 500 # No. of bootstrap replications
+Yb <- boot.rb.replicate(VAR, Ythree0, pmax, R)
+
+# IRF (bootstrap)
+SVAR.SIRF.boot <- SVAR.sirf.boot(SVAR, Amat, Bmat, Yb, pmax, H, a, R)
+plot.sirf.boot(SVAR.SIRF.boot, m, H)
+
+# Cumulative IRF (bootstrap)
+SVAR.SIRF.c.boot <- SVAR.sirf.boot(SVAR, Amat, Bmat, Yb, pmax, H, a, R, cumulative = TRUE)
+plot.sirf.boot(SVAR.SIRF.c.boot, m, H)
+
+# FEVD (bootstrap)
+SVAR.FEVD.boot <- SVAR.fevd.boot(SVAR, Amat, Bmat, Yb, pmax, H, a, R)
+plot.fevd.boot(SVAR.FEVD.boot, m, H)
+
+# ERPT (bootstrap)
+SVAR.ERPT.boot <- SVAR.erpt.boot(SVAR, Amat, Bmat, Yb, pmax, H_ERPT, 3, 2, a, R, cumulative = TRUE)
+plot.erpt.boot(SVAR.ERPT.boot, H_ERPT)
+
+# Punto 7 ####
+
+remove(list = ls(all.names = TRUE))
+gc()
+library(vars)
+library(seasonal)
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+
+M2private <- read_excel("m2.xlsx")
+M2private <- ts(M2private, start = c(2003, 12), frequency = 12)
+seas.adj <- seas(M2private)
+M2adj <- seas.adj$series$s11
+source("PS1_Data.R")
+
+Yl.f <- cbind(pcom, er, pc, M2adj)
+Yl.f <- log(Yl.f) # log transformation
+Yd.f <- 100 * diff(Yl.f) # Raw data in log-differences
+Yl <- window(Yl.f, start = c(2004, 01), end = c(2019, 12))
+Yd <- window(Yd.f, start = c(2004, 01), end = c(2019, 12))
+
+pmax <- 12
+popt <- VARselect(Yd, lag.max = pmax, type = "const")
+popt
+p <- popt$selection[1] # [check and change for each sample} /// [change again if autocorrelated errors]
+p
+
+Yd0 <- Yd[1:pmax, ] # Initial values, 12M
+Ydt <- Yd[(pmax - p + 1):nrow(Yd), ] # [check as it depends upon the lags]
+
+VAR <- VAR(Ydt, p = p, type = "const")
+m <- VAR$K
+N <- VAR$obs
+matC <- function(m, p, vx) {
+  vy <- setdiff(1:m, vx)
+  Cm <- matrix(1, m, m * p + 1)
+  for (i in vx) {
+    for (l in 1:p) {
+      for (j in vy) {
+        Cm[i, m * (l - 1) + j] <- 0
+      }
+    }
+  }
+  return(Cm)
+}
+VAR <- restrict(VAR, method = "man", resmat = matC(m, p, 1))
+
+roots(VAR, modulus = TRUE) #model check
+serial.test(VAR, lags.bg = 12, type = "ES") #model check
+
+Amat <- diag(m)
+for (i in 2:m) {
+  for (j in 1:(i - 1)) {
+    Amat[i, j] <- NA
+  }
+}
+Bmat <- matrix(0, m, m)
+for (i in 1:m) {
+  Bmat[i, i] <- NA
+}
+SVAR <- SVAR(VAR, Amat = Amat, Bmat = Bmat, lrtest = FALSE)
+
+P <- solve(SVAR$A, SVAR$B)
+pars.R <- Bcoef(VAR) # VAR
+pars.S <- solve(P, pars.R) #SVAR #check no feedback PCOM
+pars.S
+
+source("PS2_SVAR_Analysis.R")
+source("PS2_SVAR_Bootstrap.R")
+source("PS2_SVAR_Plots.R")
+
+H <- 18 # Horizon IR
+H_ERPT <- 120 # Horizon ERPT - variance decomp.
+a <- 0.95 # Confidence level
+R <- 1000 # No. of bootstrap replications
+Yb <- boot.rb.replicate(VAR, Yd0, pmax, R)
+
+# IRF (bootstrap)
+SVAR.SIRF.boot <- SVAR.sirf.boot(SVAR, Amat, Bmat, Yb, pmax, H, a, R)
+plot.sirf.boot(SVAR.SIRF.boot, m, H)
+
+# Cumulative IRF (bootstrap)
+SVAR.SIRF.c.boot <- SVAR.sirf.boot(SVAR, Amat, Bmat, Yb, pmax, H, a, R, cumulative = TRUE)
+plot.sirf.boot(SVAR.SIRF.c.boot, m, H)
+
+# FEVD (bootstrap)
+SVAR.FEVD.boot <- SVAR.fevd.boot(SVAR, Amat, Bmat, Yb, pmax, H, a, R)
+plot.fevd.boot(SVAR.FEVD.boot, m, H)
+
+# ERPT (bootstrap)
+SVAR.ERPT.boot <- SVAR.erpt.boot(SVAR, Amat, Bmat, Yb, pmax, H_ERPT, 3, 2, a, R, cumulative = TRUE)
+plot.erpt.boot(SVAR.ERPT.boot, H_ERPT)
+
+# Punto 8 ####
+remove(list = ls(all.names = TRUE))
+gc()
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+
+pf <- read_excel("pftna.xlsx")
+pf <- ts(pf, start = c(2003, 01), frequency = 12)
+source("PS1_Data.R")
+
+
+Yl.f <- cbind(pcom, er, pc)
+Yl.f <- log(Yl.f) # log transformation
+Yd.f <- 100 * diff(Yl.f) # Raw data in log-differences
+
+Yl.f <- cbind(Yl.f, pf)
+pf.d <- diff(pf)
+Yd.f <- cbind(Yd.f, pf.d)
+
+Yl <- window(Yl.f, start = c(2004, 01), end = c(2019, 12))
+Yd <- window(Yd.f, start = c(2004, 01), end = c(2019, 12))
+
+pmax <- 12
+popt <- VARselect(Yd, lag.max = pmax, type = "const")
+popt
+p <- popt$selection[1] # [check and change for each sample} /// [change again if autocorrelated errors]
+p
+
+Yd0 <- Yd[1:pmax, ] # Initial values, 12M
+Ydt <- Yd[(pmax - p + 1):nrow(Yd), ] # [check as it depends upon the lags]
+
+
+VAR <- VAR(Ydt, p = p, type = "const")
+m <- VAR$K
+N <- VAR$obs
+matC <- function(m, p, vx) {
+  vy <- setdiff(1:m, vx)
+  Cm <- matrix(1, m, m * p + 1)
+  for (i in vx) {
+    for (l in 1:p) {
+      for (j in vy) {
+        Cm[i, m * (l - 1) + j] <- 0
+      }
+    }
+  }
+  return(Cm)
+}
+VAR <- restrict(VAR, method = "man", resmat = matC(m, p, 1))
+
+roots(VAR, modulus = TRUE) #model check
+serial.test(VAR, lags.bg = 12, type = "ES") #model check
+
+Amat <- diag(m)
+for (i in 2:m) {
+  for (j in 1:(i - 1)) {
+    Amat[i, j] <- NA
+  }
+}
+Bmat <- matrix(0, m, m)
+for (i in 1:m) {
+  Bmat[i, i] <- NA
+}
+SVAR <- SVAR(VAR, Amat = Amat, Bmat = Bmat, lrtest = FALSE)
+
+P <- solve(SVAR$A, SVAR$B)
+pars.R <- Bcoef(VAR) # VAR
+pars.S <- solve(P, pars.R) #SVAR #check no feedback PCOM
+pars.S
+
+source("PS2_SVAR_Analysis.R")
+source("PS2_SVAR_Bootstrap.R")
+source("PS2_SVAR_Plots.R")
+
+H <- 18 # Horizon IR
+H_ERPT <- 120 # Horizon ERPT - variance decomp.
+a <- 0.95 # Confidence level
+R <- 1000 # No. of bootstrap replications
+Yb <- boot.rb.replicate(VAR, Yd0, pmax, R)
+
+# IRF (bootstrap)
+SVAR.SIRF.boot <- SVAR.sirf.boot(SVAR, Amat, Bmat, Yb, pmax, H, a, R)
+plot.sirf.boot(SVAR.SIRF.boot, m, H)
+
+# Cumulative IRF (bootstrap)
+SVAR.SIRF.c.boot <- SVAR.sirf.boot(SVAR, Amat, Bmat, Yb, pmax, H, a, R, cumulative = TRUE)
+plot.sirf.boot(SVAR.SIRF.c.boot, m, H)
+
+# FEVD (bootstrap)
+SVAR.FEVD.boot <- SVAR.fevd.boot(SVAR, Amat, Bmat, Yb, pmax, H, a, R)
+plot.fevd.boot(SVAR.FEVD.boot, m, H)
+
+# ERPT (bootstrap)
+SVAR.ERPT.boot <- SVAR.erpt.boot(SVAR, Amat, Bmat, Yb, pmax, H_ERPT, 3, 2, a, R, cumulative = TRUE)
+plot.erpt.boot(SVAR.ERPT.boot, H_ERPT)
+
+# Punto 9 ####
+
+#TBC
 
 # Punto 10 ####
 #Forma 1: fuente oficial
