@@ -190,6 +190,130 @@ plot.erpt(SVAR_2.ERPT, H_ERPT)
 #Pendiente: comparar con resultados modelo inciso 1.
 
 
+
+
+# Inciso 4 #### PENDIENTE
+# 
+# Yd_4 <- window(Yd.f, start = c(2013, 07), end = c(2019, 12))
+# Yd_4 <- Yd_4[, 2:3]
+# popt_4 <- VARselect(Yd_4, lag.max = pmax, type = "const")
+# popt_4
+# p_4 <- popt_4$selection[1] # AIC
+# 
+# Yd0_4 <- Yd_4[1:pmax, ] # Initial values
+# Ydt_4 <- Yd_4[(pmax - p_4 + 1):nrow(Yd_4), ]
+# 
+# # Estimation
+# VAR_4 <- VAR(Ydt_4, p = p_4, type = "const")
+# 
+# m_4 <- VAR_4$K # No. of variables in the VAR
+# N_4 <- VAR_4$obs
+# 
+# roots(VAR_4, modulus = TRUE)
+# serial.test(VAR_4, lags.bg = 12, type = "ES")
+# 
+# # SVAR estimation (AB model configuration)
+# SVAR_4 <- SVAR(VAR_4, Amat = Amat_2, Bmat = Bmat_2, lrtest = FALSE)
+# SVAR_4
+# 
+# #Reportamos resultados modelo inciso 4.
+# 
+# #hay que volver a llamarla m porque las funciones usadas a continuación están definidas usando m, y la cantidad de variables no se puede especificar de otra manera
+# #después de haber calculado las cosas que queremos volvemos a darle el valor inicial.
+# m <- m_4
+# 
+# # IRF
+# SVAR_4.SIRF <- SVAR.sirf(SVAR_4, H)
+# plot.sirf(SVAR_4.SIRF, m, H)
+# 
+# # Cumulative IRF
+# SVAR_4.SIRF.c <- SVAR.sirf(SVAR_4, H, cumulative = TRUE)
+# plot.sirf(SVAR_4.SIRF.c, m, H)
+# 
+# # FEVD
+# SVAR_4.FEVD <- SVAR.fevd(SVAR_4, H)
+# plot.fevd(SVAR_4.FEVD, m, H)
+# 
+# # HD
+# SVAR_4.HD <- SVAR.hd(SVAR_4)
+# plot.hd(Yd_4, SVAR_4.HD, m, pmax)
+# 
+# # ERPT
+# SVAR_4.ERPT <- SVAR.erpt(SVAR_4, H_ERPT, 2, 1, cumulative = TRUE)
+# plot.erpt(SVAR_4.ERPT, H_ERPT)
+
+
+# Inciso 5 ####
+
+wages.file <- paste(tempfile(), ".csv", sep = "")
+download.file("https://infra.datos.gob.ar/catalog/sspm/dataset/157/distribution/157.2/download/remuneracion-bruta-promedio-asalariados-registrados-sector-privado-segun-actividad-sin-estacionalidad.csv
+", wages.file, mode = "wb")
+
+wages <- read.csv(wages.file)
+wages <- wages[c(1,16)]
+wages_num <- as.numeric(wages$rem_bruta_asal_sin_est_total)
+
+wages_num <- wages_num[complete.cases(wages_num)] # delete NAs
+wages_num <- ts(wages_num, start = c(1995, 01), end = c(2020, 03), frequency = 12)
+wages_num  <- window(wages_num, start = c(2002, 03))
+
+wages_real <- wages_num * tail(pc, n=1)/pc
+wages_real <- wages_real / tail(wages_real, n=1)
+plot(wages_real)
+wages_real  <- window(wages_real, start = c(2004, 12))
+
+var_wages_real <- 100 * diff(log(wages_real))  # log transformation
+plot(var_wages_real)
+
+Yd_5 <- cbind(Yd, var_wages_real) # Raw data in log
+
+#Queda pendiente calcular VAR
+
+#Inciso 6 ####
+
+emae.file <- paste(tempfile(), ".csv", sep = "")
+download.file("https://infra.datos.gob.ar/catalog/sspm/dataset/143/distribution/143.3/download/emae-valores-anuales-indice-base-2004-mensual.csv", emae.file, mode = "wb")
+emae <- read.csv(emae.file)
+emae <- emae[c(1,6)]
+emae_num <- as.numeric(emae$emae_desestacionalizada_vm)
+emae_num <- ts(emae_num, start = c(2004, 01), end = c(2020, 07), frequency = 12)
+emae_num <- window(emae_num, start = c(2005, 01), end = c(2019, 12))*100
+plot(emae_num)
+emae_num <- emae_num[complete.cases(emae_num)] # delete NAs
+Yd_6 <- cbind(Yd_5, emae_num) 
+
+install.packages("tstools")
+library(tstools) #util para crear dummies temporales
+
+anio <-2009
+
+d2009_1<- create_dummy_ts(end_basic = c(anio,06), dummy_start = c(anio,03), dummy_end = c(anio,06), sp = TRUE, start_basic = c(2005,1),  dummy_value = -1, frequency = 12)
+d2009_2<- create_dummy_ts(end_basic = c(2019,12), dummy_start = c(anio,08), dummy_end = c(anio,8), sp = TRUE, start_basic = c(anio,7),  dummy_value = 1, frequency = 12)
+d2009_2[1] = 1
+d2009 <- ts(c(d2009_1,d2009_2),  start = start(d2009_2),frequency = frequency(121))
+d2009 <- ts(d2009, start = c(2005, 01), end = c(2019, 12), frequency = 12)
+
+anio <-2012
+
+d2012_1<- create_dummy_ts(end_basic = c(anio,06), dummy_start = c(anio,03), dummy_end = c(anio,06), sp = TRUE, start_basic = c(2005,1),  dummy_value = -1, frequency = 12)
+d2012_2<- create_dummy_ts(end_basic = c(2019,12), dummy_start = c(anio,08), dummy_end = c(anio,8), sp = TRUE, start_basic = c(anio,7),  dummy_value = 1, frequency = 12)
+d2012_2[1] = 1
+d2012 <- ts(c(d2012_1,d2012_2),  start = start(d2012_2),frequency = frequency(121))
+d2012 <- ts(c(d2012_1,d2012_2),  start = start(d2012_2),frequency = frequency(121))
+d2012 <- ts(d2012, start = c(2005, 01), end = c(2019, 12), frequency = 12)
+
+anio <-2018
+
+d2018_1<- create_dummy_ts(end_basic = c(anio,06), dummy_start = c(anio,03), dummy_end = c(anio,06), sp = TRUE, start_basic = c(2005,1),  dummy_value = -1, frequency = 12)
+d2018_2<- create_dummy_ts(end_basic = c(2019,12), dummy_start = c(anio,08), dummy_end = c(anio,8), sp = TRUE, start_basic = c(anio,7),  dummy_value = 1, frequency = 12)
+d2018_2[1] = 1
+d2018 <- ts(c(d2018_1,d2018_2),  start = start(d2018_2),frequency = frequency(121))
+d2018 <- ts(d2018, start = c(2005, 01), end = c(2019, 12), frequency = 12)
+
+#Contiene las 3 series originales (IPC, precios internacionales y tipo de cambio) + Salarios reales (variación) + EMAE (variación) + 3 variables dummy
+Yd_7 <- cbind(Yd_6, d2009, d2012, d2018) 
+
+
 # Punto 10 ####
 #Forma 1: fuente oficial
 
