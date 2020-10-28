@@ -867,6 +867,7 @@ R <- 1000 # No. of bootstrap replications
 
 Yb_11 <- boot.rb.replicate(VAR_11, Yd0_11, pmax, R)
 N <- N_11
+m <- m_11
 SVAR.SIRF.boot_11 <- SVAR.sirf.boot(SVAR_11, Amat_11, Bmat_11, Yb_11, pmax, H, a, R)
 plot.sirf.boot(SVAR.SIRF.boot_11, m = m_11, H)
 
