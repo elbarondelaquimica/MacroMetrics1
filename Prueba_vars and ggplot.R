@@ -1,22 +1,19 @@
-#Prueba VAR and ggplot
+# Conversión para ggplot2
 
-#Función para convertir a data frame lo que sale de la función ERPT:
+#Paquetes necesarios
+library(tidyverse)
+library(reshape2)
+
+#Defino la función: hay que especificar el nombre con el que guardamos a la función de ERPT, el horizonte a graficar y el nombre (aunque esto está medio al cohete)
 convertir_a_df <- function(SVAR.erpt.boot, H_ERPT){
   t = c(0:H_ERPT)
-  data.frame(t, SVAR.erpt.boot$lb, SVAR.erpt.boot$pe, SVAR.erpt.boot$ub)
+  df_aux <- data.frame(t, SVAR.erpt.boot$lb, SVAR.erpt.boot$pe, SVAR.erpt.boot$ub)
+  melt(df_aux,id="t")
 }
 
-
-#Acá tomo uno estimado para ver si funciona
-prueba <- convertir_a_df(SVAR.ERPT.boot_12, H_ERPT = 120)
-prueba
-
-#Parece que funciona, así que ahora hay que graficar. Antes, hay que cambiar el formato del dataframe:
-library(reshape2)
-prueba_melt <- melt(prueba,id="t")
-
-#Ahora sí, el dichoso gráfico:
-library(tidyverse)
-grafico1 <- ggplot(data=meltdf,aes(x= t, y=value,colour=variable,group=variable)) +
-  geom_line()
-grafico1
+#Aplico la función para graficar un caso.
+#tomo el punto 12 de ejemplo. El gráfico es el más sencillo, hay que agregarle muchas cosas, a gusto del consumidor (?)
+#prueba <- convertir_a_df(SVAR.ERPT.boot_12, H_ERPT = 120)
+#grafico <- ggplot(data=prueba,aes(x= t, y=value,colour=variable,group=variable)) +
+#  geom_line()
+#grafico
