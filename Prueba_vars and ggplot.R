@@ -3,17 +3,34 @@
 #Paquetes necesarios
 library(tidyverse)
 library(reshape2)
+library("tibble")
+library("gridExtra")
+library("dplyr")
+library("Lock5Data")
+library("ggthemes")
+library("fun")
+library("zoo")
+library("corrplot")
+library("maps")
+library("mapproj")
 
-#Defino la función: hay que especificar el nombre con el que guardamos a la función de ERPT y el horizonte a graficar.
-convertir_a_df <- function(SVAR.erpt.boot, H_ERPT){
-  t = c(0:H_ERPT)
-  df_aux <- data.frame(t, SVAR.erpt.boot$lb, SVAR.erpt.boot$pe, SVAR.erpt.boot$ub)
-  melt(df_aux,id="t")
+#Genero la función
+
+grafico <- function(SVAR.ERPT.boot, H_ERPT){
+  t = c(0:120)
+  datos <- data.frame(t, SVAR.ERPT.boot$lb, SVAR.ERPT.boot$pe, SVAR.ERPT.boot$ub)
+  colnames(datos) <- c("t", "lb", "pe", "ub")
+  grafico <- ggplot(data=datos,aes(x= t, y=pe))
+  grafico <- grafico + geom_ribbon(aes(x=t, ymax=ub, ymin=lb), fill="olivedrab3", alpha=.25) 
+  grafico <-  grafico +geom_line(aes(y = ub), colour = 'darkolivegreen3') 
+  grafico <-  grafico + geom_line(aes(y = lb), colour = 'darkolivegreen3')
+  grafico <- grafico + geom_line(colour = "darkolivegreen4", size =1.15)
+  grafico <- grafico + labs(x = "Mes", y =" ", title = "Exchange rate pass through", subtitle = "En porcentaje")
+  grafico <- grafico + theme_minimal()
+  grafico <- grafico + theme(axis.ticks = element_blank())
+  grafico
 }
 
-#Aplico la función para graficar un caso.
-#tomo el punto 12 de ejemplo. El gráfico es el más sencillo, hay que agregarle muchas cosas, a gusto del consumidor (?)
-#prueba <- convertir_a_df(SVAR.ERPT.boot_12, H_ERPT = 120)
-#grafico <- ggplot(data=prueba,aes(x= t, y=value,colour=variable,group=variable)) +
-#  geom_line()
-#grafico
+#Ejemplo con ej ejericio 12 y 120 períodos adelante:  
+grafico(SVAR.ERPT.boot_12, 120)  
+
