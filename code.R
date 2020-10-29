@@ -1576,6 +1576,82 @@ SVAR.ERPT.boot_11 <- SVAR.erpt.boot(SVAR_11, Amat_11, Bmat_11, Yb_11, pmax, H_ER
 plot.erpt.boot(SVAR.ERPT.boot_11, H_ERPT)
 
 
+#Punto 11: segundo ordenamiento ####
+
+#Nuevo orden:
+Yl.f_11b <- cbind(pcom_log, brecha_log, er_log, pc_log) 
+Yd.f_11b <- 100 * diff(Yl.f_11b) # Variables en log-differences
+Yl_11b <- window(Yl.f_11b, start = c(2005, 01), end = c(2019, 12))
+Yd_11b <- window(Yd.f_11b, start = c(2005, 01), end = c(2019, 12))
+
+# Comenzamos análisis VAR
+popt_11b <- VARselect(Yd_11b, lag.max = pmax, type = "const")
+popt_11b
+p_11b <- popt_11b$selection[1] # AIC
+
+# Valores iniciales
+Yd0_11b <- Yd_11[1:pmax, ] # Initial values
+Ydt_11b <- Yd_11b[(pmax - p_11b + 1):nrow(Yd_11b), ] 
+
+# Estimation
+VAR_11b <- VAR(Ydt_11b, p = p_11b, type = "const")
+
+# Control
+m_11b <- VAR_11b$K # No. of variables in the VAR
+N_11b <- VAR_11b$obs
+roots(VAR_11b, modulus = TRUE)
+serial.test(VAR_11b, lags.bg = 1, type = "ES") #DUDA: me lo estima con un solo lag, ¿les parece OK hacerlo así?
+
+# Re-estimación con restricciones:
+# Re-estimate VAR (no feedback from local vars. to pcom)
+VAR_11b <- restrict(VAR_11b, method = "man", resmat = matC(m_11b, p_11b, 1))
+VAR_11b
+
+# SVAR estimation
+
+# A Matrix
+Amat_11b <- diag(m_11b)
+for (i in 2:m_11b) {
+  for (j in 1:(i - 1)) {
+    Amat_11b[i, j] <- NA
+  }
+}
+
+# B Matrix
+#esta representa a omega (en el caso en el que no normalizamos el desvio de los errores a 1)
+Bmat_11b <- matrix(0, m_11b, m_11b)
+for (i in 1:m_11b) {
+  Bmat_11b[i, i] <- NA
+}
+
+# SVAR estimation (AB model configuration)
+SVAR_11b <- SVAR(VAR_11b, Amat = Amat_11b, Bmat = Bmat_11b, lrtest = FALSE)
+
+
+# Replicación con bootstrap y gráfico final con bandas de confianza
+a <- 0.95 # Confidence level
+R <- 1000 # No. of bootstrap replications
+
+Yb_11b <- boot.rb.replicate(VAR_11b, Yd0_11b, pmax, R)
+N <- N_11b
+m <- m_11b
+SVAR.SIRF.boot_11b <- SVAR.sirf.boot(SVAR_11b, Amat_11b, Bmat_11b, Yb_11b, pmax, H, a, R)
+plot.sirf.boot(SVAR.SIRF.boot_11b, m = m_11b, H)
+
+# Cumulative IRF (bootstrap)
+SVAR.SIRF.c.boot_11b <- SVAR.sirf.boot(SVAR_11b, Amat_11b, Bmat_11b, Yb_11b, pmax, H, a, R, cumulative = TRUE)
+plot.sirf.boot(SVAR.SIRF.c.boot_11b, m = m_11b , H)
+
+# FEVD (bootstrap)
+SVAR.FEVD.boot_11b <- SVAR.fevd.boot(SVAR_11b, Amat_11b, Bmat_11b, Yb_11b, pmax, H, a, R)
+plot.fevd.boot(SVAR.FEVD.boot_11b, m = m_11b, H)
+
+# ERPT (bootstrap)
+SVAR.ERPT.boot_11b <- SVAR.erpt.boot(SVAR_11b, Amat_11b, Bmat_11b, Yb_11b, pmax, H_ERPT, 4, 3, a, R, cumulative = TRUE) 
+plot.erpt.boot(SVAR.ERPT.boot_11b, H_ERPT)
+
+
+
 #Punto 12: primer ordenamiento ####
 #Tomamos como períodos con controles de capitales al período octubre 2011-diciembre2015 y desde septiembre 2019.
 #Fuentes: AFIP con la Resolución General 3210 y la Resolución General 3819 , Poder Ejecutivo Nacional con DNU 19/609
@@ -1672,4 +1748,78 @@ plot.fevd.boot(SVAR.FEVD.boot_12, m = m_12, H)
 # ERPT (bootstrap)
 SVAR.ERPT.boot_12 <- SVAR.erpt.boot(SVAR_12, Amat_12, Bmat_12, Yb_12, pmax, H_ERPT, 4, 2, a, R, cumulative = TRUE) # DUDA: Acá puse el 4 en vez del 3 porque sino había un problema con las dimensiones y no estimaba, pero NO ESTOY muy seguro. No me termina de quedar claro qué representan estos argumentos (los números) en la función.
 plot.erpt.boot(SVAR.ERPT.boot_12, H_ERPT)
+
+# Punto 12: segundo ordenamiento ####
+
+#Armamos vectores de variables
+Yl.f_12b <- cbind(pcom_log, brecha_con_cepo_log, er_log, pc_log) 
+Yd.f_12b <- 100 * diff(Yl.f_12b) # Variables en log-differences
+Yl_12b <- window(Yl.f_12b, start = c(2005, 01), end = c(2019, 12))
+Yd_12b <- window(Yd.f_12b, start = c(2005, 01), end = c(2019, 12))
+
+# Comenzamos análisis VAR
+popt_12b <- VARselect(Yd_12b, lag.max = pmax, type = "const")
+popt_12b
+p_12b <- popt_12b$selection[1] # AIC
+
+# Valores iniciales
+Yd0_12b <- Yd_12b[1:pmax, ] # Initial values
+Ydt_12b <- Yd_12b[(pmax - p_12b + 1):nrow(Yd_12b), ] 
+
+# Estimation
+VAR_12b <- VAR(Ydt_12b, p = p_12b, type = "const")
+
+# Control
+m_12b <- VAR_12b$K # No. of variables in the VAR
+N_12b <- VAR_12b$obs
+roots(VAR_12b, modulus = TRUE)
+serial.test(VAR_12b, lags.bg = 1, type = "ES") #DUDA: me lo estima con un solo lag, ¿les parece OK hacerlo así?
+
+# Re-estimación con restricciones:
+# Re-estimate VAR (no feedback from local vars. to pcom)
+VAR_12b <- restrict(VAR_12b, method = "man", resmat = matC(m_12b, p_12b, 1))
+VAR_12b
+
+# SVAR estimation
+
+# A Matrix
+Amat_12b <- diag(m_12b)
+for (i in 2:m_12b) {
+  for (j in 1:(i - 1)) {
+    Amat_12b[i, j] <- NA
+  }
+}
+
+# B Matrix
+#esta representa a omega (en el caso en el que no normalizamos el desvio de los errores a 1)
+Bmat_12b <- matrix(0, m_12b, m_12b)
+for (i in 1:m_12b) {
+  Bmat_12b[i, i] <- NA
+}
+
+# SVAR estimation (AB model configuration)
+SVAR_12b <- SVAR(VAR_12b, Amat = Amat_12b, Bmat = Bmat_12b, lrtest = FALSE)
+
+
+# Replicación con bootstrap y gráfico final con bandas de confianza
+a <- 0.95 # Confidence level
+R <- 1000 # No. of bootstrap replications
+
+Yb_12b <- boot.rb.replicate(VAR_12b, Yd0_12b, pmax, R)
+N <- N_12b
+m <- m_12b
+SVAR.SIRF.boot_12b <- SVAR.sirf.boot(SVAR_12b, Amat_12b, Bmat_12b, Yb_12b, pmax, H, a, R)
+plot.sirf.boot(SVAR.SIRF.boot_12b, m = m_12b, H)
+
+# Cumulative IRF (bootstrap)
+SVAR.SIRF.c.boot_12b <- SVAR.sirf.boot(SVAR_12b, Amat_12b, Bmat_12b, Yb_12b, pmax, H, a, R, cumulative = TRUE)
+plot.sirf.boot(SVAR.SIRF.c.boot_12b, m = m_12b , H)
+
+# FEVD (bootstrap)
+SVAR.FEVD.boot_12b <- SVAR.fevd.boot(SVAR_12b, Amat_12b, Bmat_12b, Yb_12b, pmax, H, a, R)
+plot.fevd.boot(SVAR.FEVD.boot_12b, m = m_12b, H)
+
+# ERPT (bootstrap)
+SVAR.ERPT.boot_12b <- SVAR.erpt.boot(SVAR_12b, Amat_12b, Bmat_12b, Yb_12b, pmax, H_ERPT, 4, 3, a, R, cumulative = TRUE)
+plot.erpt.boot(SVAR.ERPT.boot_12b, H_ERPT)
 
