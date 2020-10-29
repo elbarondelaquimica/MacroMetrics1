@@ -4,7 +4,7 @@
 library(tidyverse)
 library(reshape2)
 
-#Defino la función: hay que especificar el nombre con el que guardamos a la función de ERPT, el horizonte a graficar y el nombre (aunque esto está medio al cohete)
+#Defino la función: hay que especificar el nombre con el que guardamos a la función de ERPT y el horizonte a graficar.
 convertir_a_df <- function(SVAR.erpt.boot, H_ERPT){
   t = c(0:H_ERPT)
   df_aux <- data.frame(t, SVAR.erpt.boot$lb, SVAR.erpt.boot$pe, SVAR.erpt.boot$ub)
