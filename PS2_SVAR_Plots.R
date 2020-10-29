@@ -49,7 +49,7 @@ plot.erpt <- function(X, H) {
 
 plot.sirf.boot <- function(X, m, H) {
   for (i in 1:m) {
-    par(mfrow = c(m, 1))
+    par(mfrow = c(m, 2))
     for (j in 1:m) {
       plot(0:H, X$pe[i, j, ],
            main = paste("Response of", dimnames(X$pe)[[1]][i], "to", dimnames(X$pe)[[2]][j], "shock", sep = " "),
@@ -66,7 +66,7 @@ plot.sirf.boot <- function(X, m, H) {
 
 plot.fevd.boot <- function(X, m, H) {
   for (i in 1:m) {
-    par(mfrow = c(m, 1))
+    par(mfrow = c(m, 2))
     for (j in 1:m) {
       plot(0:H, X$pe[i, j, ],
            main = paste("Contribution of", dimnames(X$pe)[[2]][j], "shock to variance of", dimnames(X$pe)[[1]][i], sep = " "),
