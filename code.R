@@ -121,16 +121,15 @@ plot.erpt(SVAR.ERPT, H_ERPT)
 
 
 # Inciso 2 ####
-#Estimamos el modelo sin el índice de precios internos.
+#Estimamos el modelo sin el índice de precios externos.
 
-#Duda: ¿hay que hacer esto de nuevo o con los resultados que obtuvimos con las 3 variables alcanza?
 Yd_2 <- Yd[, 2:3]
 popt_2 <- VARselect(Yd_2, lag.max = pmax, type = "const")
 popt_2
 p_2 <- popt_2$selection[1] # AIC
 
 Yd0_2 <- Yd_2[1:pmax, ] # Initial values
-Ydt_2 <- Yd_2[(pmax - p_2 + 1):nrow(Yd_2), ] # Starting in Jan-04
+Ydt_2 <- Yd_2[(pmax - p_2 + 1):nrow(Yd_2), ] 
 
 # Estimation
 VAR_2 <- VAR(Ydt_2, p = p_2, type = "const")
@@ -189,9 +188,11 @@ plot.erpt(SVAR_2.ERPT, H_ERPT)
 
 #Pendiente: comparar con resultados modelo inciso 1.
 
-# Punto 3 ### run each subsample and repeat using 3 lags
+# Punto 3 #### 
+#run each subsample and repeat using 3 lags
 
-#sub-sample 1: from January 2005 to July 2011
+#sub-sample 1 ####: 
+#from January 2005 to July 2011
 
 remove(list = ls(all.names = TRUE))
 gc()
@@ -280,7 +281,8 @@ plot.fevd.boot(SVAR.FEVD.boot, m, H)
 SVAR.ERPT.boot <- SVAR.erpt.boot(SVAR, Amat, Bmat, Yb, pmax, H_ERPT, 3, 2, a, R, cumulative = TRUE)
 plot.erpt.boot(SVAR.ERPT.boot, H_ERPT)
 
-#sub-sample 2: from August 2011 to September 2015
+#sub-sample 2 ####
+#from August 2011 to September 2015
 
 remove(list = ls(all.names = TRUE))
 gc()
@@ -371,7 +373,8 @@ plot.fevd.boot(SVAR.FEVD.boot, m, H)
 SVAR.ERPT.boot <- SVAR.erpt.boot(SVAR, Amat, Bmat, Yb, pmax, H_ERPT, 3, 2, a, R, cumulative = TRUE)
 plot.erpt.boot(SVAR.ERPT.boot, H_ERPT)
 
-# sub-sample 3: from October 2015 to August 2019
+# sub-sample 3
+####from October 2015 to August 2019
 
 remove(list = ls(all.names = TRUE))
 gc()
@@ -459,6 +462,695 @@ plot.fevd.boot(SVAR.FEVD.boot, m, H)
 # ERPT (bootstrap)
 SVAR.ERPT.boot <- SVAR.erpt.boot(SVAR, Amat, Bmat, Yb, pmax, H_ERPT, 3, 2, a, R, cumulative = TRUE)
 plot.erpt.boot(SVAR.ERPT.boot, H_ERPT)
+
+
+# Inciso 4 #### 
+# Parte A: calcular desde 2013 hasta 2019, usando IPC general.
+# Parte A.1: sin precios internacionales
+#Lo seteo en 11 porque para el IPC CABA no tenemos la variación de julio de 2012, con lo que no tenemos 12 meses como condición inicial, sino 11.
+#Por la misma razón tomo desde agosto de 2012 en lugar de desde julio.
+pmax <- 11
+Yd_4 <- window(Yd.f, start = c(2012, 08), end = c(2019, 12))
+Yd_4_s_pcom <- Yd_4[, 2:3]
+popt_4_s_pcom <- VARselect(Yd_4_s_pcom, lag.max = pmax, type = "const")
+popt_4_s_pcom
+p_4_s_pcom <- popt_4_s_pcom$selection[1] # AIC
+
+Yd0_4_s_pcom <- Yd_4_s_pcom[1:pmax, ] # Initial values
+Ydt_4_s_pcom <- Yd_4_s_pcom[(pmax - p_4_s_pcom + 1):nrow(Yd_4_s_pcom), ]
+
+# Estimation
+VAR_4_s_pcom <- VAR(Ydt_4_s_pcom, p = p_4_s_pcom, type = "const")
+
+m_4_s_pcom <- VAR_4_s_pcom$K # No. of variables in the VAR
+N_4_s_pcom <- VAR_4_s_pcom$obs
+
+N <- N_4_s_pcom
+m <- m_4_s_pcom
+
+Amat <- diag(m)
+for (i in 2:m) {
+  for (j in 1:(i - 1)) {
+    Amat[i, j] <- NA
+  }
+}
+
+# B Matrix
+#esta representa a omega (en el caso en el que no normalizamos el desvio de los errores a 1)
+Bmat <- matrix(0, m, m)
+for (i in 1:m) {
+  Bmat[i, i] <- NA
+}
+
+roots(VAR_4_s_pcom, modulus = TRUE)
+serial.test(VAR_4_s_pcom, lags.bg = 12, type = "ES")
+
+# SVAR estimation (AB model configuration)
+SVAR_4_s_pcom <- SVAR(VAR_4_s_pcom, Amat = Amat, Bmat = Bmat, lrtest = FALSE)
+SVAR_4_s_pcom
+
+#Resultados parte A.1.
+m <- m_4_s_pcom
+N <- N_4_s_pcom 
+# IRF
+SVAR_4_s_pcom.SIRF <- SVAR.sirf(SVAR_4_s_pcom, H)
+plot.sirf(SVAR_4_s_pcom.SIRF, m, H)
+
+# Cumulative IRF
+SVAR_4_s_pcom.SIRF.c <- SVAR.sirf(SVAR_4_s_pcom, H, cumulative = TRUE)
+plot.sirf(SVAR_4_s_pcom.SIRF.c, m, H)
+
+# FEVD
+SVAR_4_s_pcom.FEVD <- SVAR.fevd(SVAR_4_s_pcom, H)
+plot.fevd(SVAR_4_s_pcom.FEVD, m, H)
+
+# ERPT
+SVAR_4_s_pcom.ERPT <- SVAR.erpt(SVAR_4_s_pcom, H_ERPT, 2, 1, cumulative = TRUE)
+plot.erpt(SVAR_4_s_pcom.ERPT, H_ERPT)
+
+#Parte A.2: con precios internacionales
+#Es 11 por la misma razón que en la parte anterior.
+pmax <- 11
+
+popt_4_c_pcom <- VARselect(Yd_4, lag.max = pmax, type = "const")
+popt_4_c_pcom
+p_4_c_pcom <- popt_4_c_pcom$selection[1] # AIC
+
+Yd0_4_c_pcom <- Yd_4[1:pmax, ] # Initial values
+#MARTIN: No entiendo muy bien por qué, pero solo eliminamos 10 valores, no 12. 
+#MARTIN: ¿No deberíamos comernos únicamente los primeros 3 valores?
+Ydt_4_c_pcom <- Yd_4[(pmax - p_4_c_pcom + 1):nrow(Yd_4), ] # Starting in Jan-04
+
+# Estimation
+VAR_4_c_pcom <- VAR(Ydt_4_c_pcom, p = p_4_c_pcom, type = "const")
+
+m_4_c_pcom <- VAR_4_c_pcom$K # No. of variables in the VAR
+N_4_c_pcom <- VAR_4_c_pcom$obs # No. of effective sample observations, excluding "p" starting values
+m <- m_4_c_pcom
+N <- N_4_c_pcom 
+
+
+Amat <- diag(m)
+for (i in 2:m) {
+  for (j in 1:(i - 1)) {
+    Amat[i, j] <- NA
+  }
+}
+
+# B Matrix
+#esta representa a omega (en el caso en el que no normalizamos el desvio de los errores a 1)
+Bmat <- matrix(0, m, m)
+for (i in 1:m) {
+  Bmat[i, i] <- NA
+}
+
+# Ad hoc function
+matC <- function(m, p, vx) {
+  vy <- setdiff(1:m, vx)
+  Cm <- matrix(1, m, m * p + 1)
+  for (i in vx) {
+    for (l in 1:p) {
+      for (j in vy) {
+        Cm[i, m * (l - 1) + j] <- 0
+      }
+    }
+  }
+  return(Cm)
+}
+
+# Re-estimate VAR (no feedback from local vars. to pcom)
+VAR_4_c_pcom <- restrict(VAR_4_c_pcom, method = "man", resmat = matC(m_4_c_pcom, p_4_c_pcom, 1))
+VAR_4_c_pcom
+
+
+# Model checking
+roots(VAR_4_c_pcom, modulus = TRUE)
+serial.test(VAR_4_c_pcom, lags.bg = 12, type = "ES")
+
+# SVAR estimation (AB model configuration)
+#aca simplemente estimamos el SVAR imponiendo ciertas assumptions embebidas en A y en B
+#los NA en A y en B se van a estimar como en la slide 24 de la lecture 4
+SVAR_4_c_pcom <- SVAR(VAR_4_c_pcom, Amat = Amat, Bmat = Bmat, lrtest = FALSE)
+SVAR
+
+#Reporte de resultados inciso 4 parte a2
+#(quiza podriamos hacer graficos mas lindos con ggplot)
+
+# IRF
+SVAR_4_c_pcom.SIRF <- SVAR.sirf(SVAR_4_c_pcom, H)
+plot.sirf(SVAR_4_c_pcom.SIRF, m, H)
+
+# Cumulative IRF
+SVAR_4_c_pcom.SIRF.c <- SVAR.sirf(SVAR_4_c_pcom, H, cumulative = TRUE)
+plot.sirf(SVAR_4_c_pcom.SIRF.c, m, H)
+
+# FEVD
+SVAR_4_c_pcom.FEVD <- SVAR.fevd(SVAR_4_c_pcom, H)
+plot.fevd(SVAR_4_c_pcom.FEVD, m, H)
+
+# HD
+SVAR_4_c_pcom.HD <- SVAR.hd(SVAR_4_c_pcom)
+plot.hd(Yd, SVAR_4_c_pcom.HD, m, pmax)
+
+# ERPT
+SVAR_4_c_pcom.ERPT <- SVAR.erpt(SVAR_4_c_pcom, H_ERPT, 3, 2, cumulative = TRUE)
+plot.erpt(SVAR_4_c_pcom.ERPT, H_ERPT)
+
+
+#Parte B: con índice de precios de CABA.
+#B.1: Sin precios internacionales.
+# CPI, City of Buenos Aires
+ipc.ba <- read.csv(url("https://apis.datos.gob.ar/series/api/series/?ids=193.1_NIVEL_GENERAL_JULI_0_13&limit=5000&format=csv"))
+ipc.ba <- ts(ipc.ba$nivel_general, start = c(2012, 07), frequency = 12)
+ipc.ba <- diff(log(ipc.ba))
+ipc.ba <- window(ipc.ba, end = c(2019, 12))
+ipc.ba <- window(ipc.ba, start = c(2012, 08))
+
+Yd_caba <- Yd_4[, 1:2]
+Yd_caba <- cbind(Yd_caba, ipc.ba)
+Yd_caba_s_com <- Yd_caba[, 2:3]
+
+popt_4_s_pcom <- VARselect(Yd_caba_s_com, lag.max = pmax, type = "const")
+popt_4_s_pcom
+p_4_s_pcom <- popt_4_s_pcom$selection[1] # AIC
+
+Yd0_4_s_pcom <- Yd_caba_s_com [1:pmax, ] # Initial values
+Ydt_4_s_pcom <- Yd_caba_s_com [(pmax - p_4_s_pcom + 1):nrow(Yd_4_s_pcom), ]
+
+# Estimation
+VAR_4_s_pcom <- VAR(Ydt_4_s_pcom, p = p_4_s_pcom, type = "const")
+
+m <- VAR_4_s_pcom$K # No. of variables in the VAR
+N <- VAR_4_s_pcom$obs
+
+m_4_s_pcom_caba <-m
+N_4_s_pcom_caba <- N
+
+Amat <- diag(m)
+for (i in 2:m) {
+  for (j in 1:(i - 1)) {
+    Amat[i, j] <- NA
+  }
+}
+
+# B Matrix
+#esta representa a omega (en el caso en el que no normalizamos el desvio de los errores a 1)
+Bmat <- matrix(0, m, m)
+for (i in 1:m) {
+  Bmat[i, i] <- NA
+}
+
+roots(VAR_4_s_pcom, modulus = TRUE)
+serial.test(VAR_4_s_pcom, lags.bg = 12, type = "ES")
+
+# SVAR estimation (AB model configuration)
+SVAR_4_s_pcom_caba <- SVAR(VAR_4_s_pcom, Amat = Amat, Bmat = Bmat, lrtest = FALSE)
+SVAR_4_s_pcom_caba
+
+#Resultados parte B.1.
+
+# IRF
+SVAR_4_s_pcom_caba.SIRF <- SVAR.sirf(SVAR_4_s_pcom_caba, H)
+plot.sirf(SVAR_4_s_pcom_caba.SIRF, m, H)
+
+# Cumulative IRF
+SVAR_4_s_pcom_caba.SIRF.c <- SVAR.sirf(SVAR_4_s_pcom_caba, H, cumulative = TRUE)
+plot.sirf(SVAR_4_s_pcom_caba.SIRF.c, m, H)
+
+# FEVD
+SVAR_4_s_pcom_caba.FEVD <- SVAR.fevd(SVAR_4_s_pcom_caba, H)
+plot.fevd(SVAR_4_s_pcom_caba.FEVD, m, H)
+
+# ERPT
+SVAR_4_s_pcom_caba.ERPT <- SVAR.erpt(SVAR_4_s_pcom_caba, H_ERPT, 2, 1, cumulative = TRUE)
+plot.erpt(SVAR_4_s_pcom_caba.ERPT, H_ERPT)
+
+
+#B.2: Con precios internacionales.
+Yd_caba_c_com <- Yd_caba[, 2:3]
+popt_4_c_pcom <- VARselect(Yd_caba_c_com, lag.max = pmax, type = "const")
+popt_4_c_pcom
+
+p_4_c_pcom <- popt_4_c_pcom$selection[1] # AIC
+
+Yd0_4_c_pcom <- Yd_caba_c_com[1:pmax, ] # Initial values
+
+Ydt_4_c_pcom <- Yd_caba_c_com[(pmax - p_4_c_pcom + 1):nrow(Yd_caba_c_com), ] # Starting in Jan-04
+
+# Estimation
+VAR_4_c_pcom <- VAR(Ydt_4_c_pcom, p = p_4_c_pcom, type = "const")
+
+m_4_c_pcom_caba <- VAR_4_c_pcom$K # No. of variables in the VAR
+N_4_c_pcom_caba <- VAR_4_c_pcom$obs # No. of effective sample observations, excluding "p" starting values
+m <- m_4_c_pcom_caba
+N <- N_4_c_pcom_caba 
+# Ad hoc function
+matC <- function(m, p, vx) {
+  vy <- setdiff(1:m, vx)
+  Cm <- matrix(1, m, m * p + 1)
+  for (i in vx) {
+    for (l in 1:p) {
+      for (j in vy) {
+        Cm[i, m * (l - 1) + j] <- 0
+      }
+    }
+  }
+  return(Cm)
+}
+
+# Re-estimate VAR (no feedback from local vars. to pcom)
+VAR_4_c_pcom <- restrict(VAR_4_c_pcom, method = "man", resmat = matC(m_4_c_pcom, p_4_c_pcom, 1))
+VAR_4_c_pcom
+
+
+# Model checking
+roots(VAR_4_c_pcom, modulus = TRUE)
+serial.test(VAR_4_c_pcom, lags.bg = 12, type = "ES")
+
+# SVAR estimation
+
+
+Amat <- diag(m)
+for (i in 2:m) {
+  for (j in 1:(i - 1)) {
+    Amat[i, j] <- NA
+  }
+}
+
+# B Matrix
+#esta representa a omega (en el caso en el que no normalizamos el desvio de los errores a 1)
+Bmat <- matrix(0, m, m)
+for (i in 1:m) {
+  Bmat[i, i] <- NA
+}
+
+
+# SVAR estimation (AB model configuration)
+#aca simplemente estimamos el SVAR imponiendo ciertas assumptions embebidas en A y en B
+#los NA en A y en B se van a estimar como en la slide 24 de la lecture 4
+SVAR_4_c_pcom <- SVAR(VAR_4_c_pcom, Amat = Amat, Bmat = Bmat, lrtest = FALSE)
+SVAR
+
+
+#Reporte de resultados inciso 4 parte a2
+#(quiza podriamos hacer graficos mas lindos con ggplot)
+
+# IRF
+SVAR_4_c_pcom_caba.SIRF <- SVAR.sirf(SVAR_4_c_pcom, H)
+plot.sirf(SVAR_4_c_pcom_caba.SIRF, m, H)
+
+# Cumulative IRF
+SVAR_4_c_pcom_caba.SIRF.c <- SVAR.sirf(SVAR_4_c_pcom, H, cumulative = TRUE)
+plot.sirf(SVAR_4_c_pcom_caba.SIRF.c, m, H)
+
+# FEVD
+SVAR_4_c_pcom_caba.FEVD <- SVAR.fevd(SVAR_4_c_pcom, H)
+plot.fevd(SVAR_4_c_pcom_caba.FEVD, m, H)
+
+# HD
+SVAR_4_c_pcom_caba.HD <- SVAR.hd(SVAR_4_c_pcom)
+plot.hd(Yd, SVAR_4_c_pcom_caba.HD, m, pmax)
+
+# ERPT
+SVAR_4_c_pcom_caba.ERPT <- SVAR.erpt(SVAR_4_c_pcom, H_ERPT, 3, 2, cumulative = TRUE)
+plot.erpt(SVAR_4_c_pcom_caba.ERPT, H_ERPT)
+
+
+# Inciso 5 ####
+
+wages.file <- paste(tempfile(), ".csv", sep = "")
+download.file("https://infra.datos.gob.ar/catalog/sspm/dataset/157/distribution/157.2/download/remuneracion-bruta-promedio-asalariados-registrados-sector-privado-segun-actividad-sin-estacionalidad.csv
+", wages.file, mode = "wb")
+
+wages <- read.csv(wages.file)
+wages <- wages[c(1,16)]
+wages_num <- as.numeric(wages$rem_bruta_asal_sin_est_total)
+
+wages_num <- wages_num[complete.cases(wages_num)] # delete NAs
+wages_num <- ts(wages_num, start = c(1995, 01), end = c(2020, 03), frequency = 12)
+wages_num  <- window(wages_num, start = c(2002, 03))
+
+wages_real <- wages_num * tail(pc, n=1)/pc
+wages_real <- wages_real / tail(wages_real, n=1)
+plot(wages_real)
+wages_real  <- window(wages_real, start = c(2004, 12))
+
+var_wages_real <- 100 * diff(log(wages_real))  # log transformation
+plot(var_wages_real)
+
+Yd_5 <- cbind(Yd, var_wages_real) # Raw data in log
+Yd_5 <- window(Yd_5,start = c(2005, 01), end = c(2019, 12))
+
+#Parte A: sin precios internacionales
+
+pmax <- 12
+Yd_5_s_pcom <- Yd_5[, 2:3]
+popt <- VARselect(Yd_5_s_pcom, lag.max = pmax, type = "const")
+p <- popt$selection[1] # AIC
+p_5_s_pcom <- p
+
+Yd0 <- Yd_5_s_pcom [1:pmax, ] # Initial values
+Ydt <- Yd_5_s_pcom [(pmax - p + 1):nrow(Yd_5_s_pcom), ]
+
+# Estimation
+VAR <- VAR(Ydt, p = p, type = "const")
+
+m <- VAR$K # No. of variables in the VAR
+N <- VAR$obs
+
+m_5_s_pcom <- m
+N_5_s_pcom <- N
+
+Amat <- diag(m)
+for (i in 2:m) {
+  for (j in 1:(i - 1)) {
+    Amat[i, j] <- NA
+  }
+}
+
+# B Matrix
+#esta representa a omega (en el caso en el que no normalizamos el desvio de los errores a 1)
+Bmat <- matrix(0, m, m)
+for (i in 1:m) {
+  Bmat[i, i] <- NA
+}
+
+roots(VAR, modulus = TRUE)
+serial.test(VAR, lags.bg = 12, type = "ES")
+
+# SVAR estimation (AB model configuration)
+SVAR<- SVAR(VAR, Amat = Amat, Bmat = Bmat, lrtest = FALSE)
+SVAR
+
+#Resultados parte A
+
+# IRF
+SVAR_5_s_pcom.SIRF <- SVAR.sirf(SVAR, H)
+plot.sirf(SVAR_5_s_pcom.SIRF, m, H)
+
+# Cumulative IRF
+SVAR_5_s_pcom.SIRF.c <- SVAR.sirf(SVAR, H, cumulative = TRUE)
+plot.sirf(SVAR_5_s_pcom.SIRF.c, m, H)
+
+# FEVD
+SVAR_5_s_pcom.FEVD <- SVAR.fevd(SVAR, H)
+plot.fevd(SVAR_5_s_pcom.FEVD, m, H)
+
+# ERPT
+SVAR_5_s_pcom.ERPT <- SVAR.erpt(SVAR, H_ERPT, 2, 1, cumulative = TRUE)
+plot.erpt(SVAR_5_s_pcom.ERPT, H_ERPT)
+
+#Parte B: con precios internacionales
+
+popt <- VARselect(Yd_5, lag.max = pmax, type = "const")
+
+p <- popt$selection[1] # AIC
+p_5_c_pcom<- p
+
+Yd0 <- Yd_5[1:pmax, ] # Initial values
+#MARTIN: No entiendo muy bien por qué, pero solo eliminamos 10 valores, no 12. 
+#MARTIN: ¿No deberíamos comernos únicamente los primeros 3 valores?
+Ydt <- Yd_5[(pmax - p + 1):nrow(Yd_5), ] # Starting in Jan-04
+
+# Estimation
+VAR <- VAR(Ydt, p = p, type = "const")
+
+m_5_c_pcom <- VAR$K # No. of variables in the VAR
+N_5_c_pcom <- VAR$obs # No. of effective sample observations, excluding "p" starting values
+m <- m_5_c_pcom
+N <- N_5_c_pcom 
+
+
+Amat <- diag(m)
+for (i in 2:m) {
+  for (j in 1:(i - 1)) {
+    Amat[i, j] <- NA
+  }
+}
+
+# B Matrix
+#esta representa a omega (en el caso en el que no normalizamos el desvio de los errores a 1)
+Bmat <- matrix(0, m, m)
+for (i in 1:m) {
+  Bmat[i, i] <- NA
+}
+
+# Ad hoc function
+matC <- function(m, p, vx) {
+  vy <- setdiff(1:m, vx)
+  Cm <- matrix(1, m, m * p + 1)
+  for (i in vx) {
+    for (l in 1:p) {
+      for (j in vy) {
+        Cm[i, m * (l - 1) + j] <- 0
+      }
+    }
+  }
+  return(Cm)
+}
+
+# Re-estimate VAR (no feedback from local vars. to pcom)
+VAR <- restrict(VAR, method = "man", resmat = matC(m, p, 1))
+VAR
+
+
+# Model checking
+roots(VAR, modulus = TRUE)
+serial.test(VAR, lags.bg = 12, type = "ES")
+
+# SVAR estimation (AB model configuration)
+#aca simplemente estimamos el SVAR imponiendo ciertas assumptions embebidas en A y en B
+#los NA en A y en B se van a estimar como en la slide 24 de la lecture 4
+SVAR <- SVAR(VAR, Amat = Amat, Bmat = Bmat, lrtest = FALSE)
+SVAR
+
+#Reporte de resultados inciso 4 parte a2
+#(quiza podriamos hacer graficos mas lindos con ggplot)
+
+# IRF
+SVAR_5_c_pcom.SIRF <- SVAR.sirf(SVAR, H)
+plot.sirf(SVAR_5_c_pcom.SIRF, m, H)
+
+# Cumulative IRF
+SVAR_5_c_pcom.SIRF.c <- SVAR.sirf(SVAR, H, cumulative = TRUE)
+plot.sirf(SVAR_5_c_pcom.SIRF.c, m, H)
+
+# FEVD
+SVAR_5_c_pcom.FEVD <- SVAR.fevd(SVAR, H)
+plot.fevd(SVAR_5_c_pcom.FEVD, m, H)
+
+# HD
+SVAR_5_c_pcom.HD <- SVAR.hd(SVAR)
+plot.hd(Yd, SVAR_5_c_pcom.HD, m, pmax)
+
+# ERPT
+SVAR_5_c_pcom.ERPT <- SVAR.erpt(SVAR, H_ERPT, 3, 2, cumulative = TRUE)
+plot.erpt(SVAR_5_c_pcom.ERPT, H_ERPT)
+
+
+
+#Inciso 6 ####
+
+#Necesario instalar el siguiente paquete:
+#util para crear dummies temporales
+#install.packages("tstools")
+library(tstools)
+
+emae.file <- paste(tempfile(), ".csv", sep = "")
+download.file("https://infra.datos.gob.ar/catalog/sspm/dataset/143/distribution/143.3/download/emae-valores-anuales-indice-base-2004-mensual.csv", emae.file, mode = "wb")
+emae <- read.csv(emae.file)
+emae <- emae[c(1,6)]
+emae_num <- as.numeric(emae$emae_desestacionalizada_vm)
+emae_num <- ts(emae_num, start = c(2004, 01), end = c(2020, 07), frequency = 12)
+emae_num <- window(emae_num, start = c(2005, 01), end = c(2019, 12))*100
+plot(emae_num)
+emae_num <- emae_num[complete.cases(emae_num)] # delete NAs
+Yd_6 <- cbind(Yd_5, emae_num) 
+
+anio <-2009
+
+d2009_1<- create_dummy_ts(end_basic = c(anio,06), dummy_start = c(anio,03), dummy_end = c(anio,06), sp = TRUE, start_basic = c(2005,1),  dummy_value = -1, frequency = 12)
+d2009_2<- create_dummy_ts(end_basic = c(2019,12), dummy_start = c(anio,08), dummy_end = c(anio,8), sp = TRUE, start_basic = c(anio,7),  dummy_value = 1, frequency = 12)
+d2009_2[1] = 1
+d2009 <- ts(c(d2009_1,d2009_2),  start = start(d2009_2),frequency = frequency(121))
+d2009 <- ts(d2009, start = c(2005, 01), end = c(2019, 12), frequency = 12)
+
+anio <-2012
+
+d2012_1<- create_dummy_ts(end_basic = c(anio,06), dummy_start = c(anio,03), dummy_end = c(anio,06), sp = TRUE, start_basic = c(2005,1),  dummy_value = -1, frequency = 12)
+d2012_2<- create_dummy_ts(end_basic = c(2019,12), dummy_start = c(anio,08), dummy_end = c(anio,8), sp = TRUE, start_basic = c(anio,7),  dummy_value = 1, frequency = 12)
+d2012_2[1] = 1
+d2012 <- ts(c(d2012_1,d2012_2),  start = start(d2012_2),frequency = frequency(121))
+d2012 <- ts(c(d2012_1,d2012_2),  start = start(d2012_2),frequency = frequency(121))
+d2012 <- ts(d2012, start = c(2005, 01), end = c(2019, 12), frequency = 12)
+
+anio <-2018
+
+d2018_1<- create_dummy_ts(end_basic = c(anio,06), dummy_start = c(anio,03), dummy_end = c(anio,06), sp = TRUE, start_basic = c(2005,1),  dummy_value = -1, frequency = 12)
+d2018_2<- create_dummy_ts(end_basic = c(2019,12), dummy_start = c(anio,08), dummy_end = c(anio,8), sp = TRUE, start_basic = c(anio,7),  dummy_value = 1, frequency = 12)
+d2018_2[1] = 1
+d2018 <- ts(c(d2018_1,d2018_2),  start = start(d2018_2),frequency = frequency(121))
+d2018 <- ts(d2018, start = c(2005, 01), end = c(2019, 12), frequency = 12)
+
+
+dlog.emae.reg <- lm(emae_num ~ -1 + d2009 + d2012 + d2018)
+dlog.emae.adj <- dlog.emae.reg$residuals
+
+dlog_residuos <- as.numeric(dlog.emae.adj)
+dlog_residuos <- ts(dlog_residuos, start = c(2005, 01), end = c(2019, 12), frequency = 12)
+dlog_residuos
+
+Yd_7 <- cbind(Yd_6[,1:4], dlog_residuos) 
+Yd_6 <- Yd_7
+Yd_6_s_pcom <- Yd_6[, 2:4]
+
+
+#Parte A: sin precios internacionales
+
+popt <- VARselect(Yd_6_s_pcom, lag.max = pmax, type = "const")
+p <- popt$selection[1] # AIC
+p_6_s_pcom <- p
+
+Yd0 <- Yd_6_s_pcom [1:pmax, ] # Initial values
+Ydt <- Yd_6_s_pcom [(pmax - p + 1):nrow(Yd_6_s_pcom), ]
+
+# Estimation
+VAR <- VAR(Ydt, p = p, type = "const")
+
+m <- VAR$K # No. of variables in the VAR
+N <- VAR$obs
+
+m_6_s_pcom <- m
+N_6_s_pcom <- N
+
+Amat <- diag(m)
+for (i in 2:m) {
+  for (j in 1:(i - 1)) {
+    Amat[i, j] <- NA
+  }
+}
+
+# B Matrix
+#esta representa a omega (en el caso en el que no normalizamos el desvio de los errores a 1)
+Bmat <- matrix(0, m, m)
+for (i in 1:m) {
+  Bmat[i, i] <- NA
+}
+
+roots(VAR, modulus = TRUE)
+serial.test(VAR, lags.bg = 12, type = "ES")
+
+# SVAR estimation (AB model configuration)
+SVAR<- SVAR(VAR, Amat = Amat, Bmat = Bmat, lrtest = FALSE)
+SVAR
+
+#Resultados parte A
+
+# IRF
+SVAR_6_s_pcom.SIRF <- SVAR.sirf(SVAR, H)
+plot.sirf(SVAR_6_s_pcom.SIRF, m, H)
+
+# Cumulative IRF
+SVAR_6_s_pcom.SIRF.c <- SVAR.sirf(SVAR, H, cumulative = TRUE)
+plot.sirf(SVAR_6_s_pcom.SIRF.c, m, H)
+
+# FEVD
+SVAR_6_s_pcom.FEVD <- SVAR.fevd(SVAR, H)
+plot.fevd(SVAR_6_s_pcom.FEVD, m, H)
+
+# ERPT
+SVAR_6_s_pcom.ERPT <- SVAR.erpt(SVAR, H_ERPT, 2, 1, cumulative = TRUE)
+plot.erpt(SVAR_6_s_pcom.ERPT, H_ERPT)
+
+#Parte B: con precios internacionales
+
+popt <- VARselect(Yd_6, lag.max = pmax, type = "const")
+
+p <- popt$selection[1] # AIC
+p_6_c_pcom<- p
+
+Yd0 <- Yd_6[1:pmax, ] # Initial values
+#MARTIN: No entiendo muy bien por qué, pero solo eliminamos 10 valores, no 12. 
+#MARTIN: ¿No deberíamos comernos únicamente los primeros 3 valores?
+Ydt <- Yd_6[(pmax - p + 1):nrow(Yd_6), ] # Starting in Jan-04
+
+# Estimation
+VAR <- VAR(Ydt, p = p, type = "const")
+
+m_6_c_pcom <- VAR$K # No. of variables in the VAR
+N_6_c_pcom <- VAR$obs # No. of effective sample observations, excluding "p" starting values
+m <- m_6_c_pcom
+N <- N_6_c_pcom 
+
+
+Amat <- diag(m)
+for (i in 2:m) {
+  for (j in 1:(i - 1)) {
+    Amat[i, j] <- NA
+  }
+}
+
+# B Matrix
+#esta representa a omega (en el caso en el que no normalizamos el desvio de los errores a 1)
+Bmat <- matrix(0, m, m)
+for (i in 1:m) {
+  Bmat[i, i] <- NA
+}
+
+# Ad hoc function
+matC <- function(m, p, vx) {
+  vy <- setdiff(1:m, vx)
+  Cm <- matrix(1, m, m * p + 1)
+  for (i in vx) {
+    for (l in 1:p) {
+      for (j in vy) {
+        Cm[i, m * (l - 1) + j] <- 0
+      }
+    }
+  }
+  return(Cm)
+}
+
+# Re-estimate VAR (no feedback from local vars. to pcom)
+VAR <- restrict(VAR, method = "man", resmat = matC(m, p, 1))
+VAR
+
+
+# Model checking
+roots(VAR, modulus = TRUE)
+serial.test(VAR, lags.bg = 12, type = "ES")
+
+# SVAR estimation (AB model configuration)
+#aca simplemente estimamos el SVAR imponiendo ciertas assumptions embebidas en A y en B
+#los NA en A y en B se van a estimar como en la slide 24 de la lecture 4
+SVAR <- SVAR(VAR, Amat = Amat, Bmat = Bmat, lrtest = FALSE)
+SVAR
+
+#Reporte de resultados inciso 4 parte a2
+#(quiza podriamos hacer graficos mas lindos con ggplot)
+
+# IRF
+SVAR_6_c_pcom.SIRF <- SVAR.sirf(SVAR, H)
+plot.sirf(SVAR_6_c_pcom.SIRF, m, H)
+
+# Cumulative IRF
+SVAR_6_c_pcom.SIRF.c <- SVAR.sirf(SVAR, H, cumulative = TRUE)
+plot.sirf(SVAR_6_c_pcom.SIRF.c, m, H)
+
+# FEVD
+SVAR_6_c_pcom.FEVD <- SVAR.fevd(SVAR, H)
+plot.fevd(SVAR_6_c_pcom.FEVD, m, H)
+
+# HD
+SVAR_6_c_pcom.HD <- SVAR.hd(SVAR)
+plot.hd(Yd, SVAR_6_c_pcom.HD, m, pmax)
+
+# ERPT
+SVAR_6_c_pcom.ERPT <- SVAR.erpt(SVAR, H_ERPT, 3, 2, cumulative = TRUE)
+plot.erpt(SVAR_6_c_pcom.ERPT, H_ERPT)
+
+
+
 
 # Punto 7 ####
 
@@ -674,8 +1366,8 @@ plot(dolar_ccl, type = "l",lwd=2, col="black", xlab="",ylab="",bty="n", main="CC
 #Utilizamos una descarga automática basada en Yahoo Finance de los valores en NY y en BA, tomando precio de cierre mensual ajustado:
 library(tseries)
 P_adr <- get.hist.quote(instrument = "GGAL", start = "2004-01-01", end = "2019-12-31", 
-                    quote = "AdjClose", provider = "yahoo", compression = "m", 
-                    retclass = "zoo")
+                        quote = "AdjClose", provider = "yahoo", compression = "m", 
+                        retclass = "zoo")
 plot(P_adr,type = "l",lwd=2, col="black", xlab="",ylab="",bty="n", main="GGAL Adjusted Price", ylim=c(0,70))
 
 P_local <- get.hist.quote(instrument = "GGAL.BA", start = "2004-01-01", end = "2019-12-31", 
@@ -980,9 +1672,4 @@ plot.fevd.boot(SVAR.FEVD.boot_12, m = m_12, H)
 # ERPT (bootstrap)
 SVAR.ERPT.boot_12 <- SVAR.erpt.boot(SVAR_12, Amat_12, Bmat_12, Yb_12, pmax, H_ERPT, 4, 2, a, R, cumulative = TRUE) # DUDA: Acá puse el 4 en vez del 3 porque sino había un problema con las dimensiones y no estimaba, pero NO ESTOY muy seguro. No me termina de quedar claro qué representan estos argumentos (los números) en la función.
 plot.erpt.boot(SVAR.ERPT.boot_12, H_ERPT)
-
-
-
-
-
 
