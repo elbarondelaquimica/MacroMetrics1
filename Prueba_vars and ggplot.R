@@ -17,9 +17,6 @@ prueba_melt <- melt(prueba,id="t")
 
 #Ahora sí, el dichoso gráfico:
 library(tidyverse)
-grafico1 <- ggplot(data=prueba_melt, aes_string(prueba$t, prueba$lb, prueba$pe, prueba$up)) +
-  geom_line(aes(y = prueba$lb), colour = 'lightblue2')
-
 grafico1 <- ggplot(data=meltdf,aes(x= t, y=value,colour=variable,group=variable)) +
   geom_line()
 grafico1
