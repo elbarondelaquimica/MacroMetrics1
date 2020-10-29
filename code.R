@@ -2,6 +2,85 @@ remove(list = ls(all.names = TRUE))
 gc()
 
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+# 
+# SVARS_s_pcom <- function(name, v1, v2){
+#   source("PS2_SVAR_Bootstrap_sin_precios_int.R")
+#   assign(paste(deparse(substitute(name)), ".SIRF.boot", sep=""), SVAR.sirf.boot(name, Amat, Bmat, Yb, pmax, H, a, R), envir = .GlobalEnv)
+#   assign(paste(deparse(substitute(name)), ".SIRF.c.boot", sep=""), SVAR.sirf.boot(name, Amat, Bmat, Yb, pmax, H, a, R, cumulative = TRUE), envir = .GlobalEnv)
+#   assign(paste(deparse(substitute(name)), ".FEVD.boot", sep=""), SVAR.fevd.boot(name, Amat, Bmat, Yb, pmax, H, a, R), envir = .GlobalEnv)
+#   assign(paste(deparse(substitute(name)), ".ERPT.boot", sep=""), SVAR.erpt.boot(name, Amat, Bmat, Yb, pmax, H_ERPT, v1, v2, a, R, cumulative = TRUE), envir = .GlobalEnv)
+# }
+# 
+# SVARS<- function(name, v1, v2){
+#   source("PS2_SVAR_Bootstrap.R")
+#   assign(paste(deparse(substitute(name)), ".SIRF.boot", sep=""), SVAR.sirf.boot(name, Amat, Bmat, Yb, pmax, H, a, R), envir = .GlobalEnv)
+#   assign(paste(deparse(substitute(name)), ".SIRF.c.boot", sep=""), SVAR.sirf.boot(name, Amat, Bmat, Yb, pmax, H, a, R, cumulative = TRUE), envir = .GlobalEnv)
+#   assign(paste(deparse(substitute(name)), ".FEVD.boot", sep=""), SVAR.fevd.boot(name, Amat, Bmat, Yb, pmax, H, a, R), envir = .GlobalEnv)
+#   assign(paste(deparse(substitute(name)), ".ERPT.boot", sep=""), SVAR.erpt.boot(name, Amat, Bmat, Yb, pmax, H_ERPT, v1, v2, a, R, cumulative = TRUE), envir = .GlobalEnv)
+# }
+source("PS2_SVAR_Plots.R")
+source("PS2_SVAR_Analysis.R")
+source("PS2_SVAR_Bootstrap.R")
+
+SVARS<- function(name, v1, v2){
+  source("PS2_SVAR_Analysis.R")
+  source("PS2_SVAR_Bootstrap.R")
+  assign(paste(deparse(substitute(name)), ".SIRF.boot", sep=""), SVAR.sirf.boot(name, Amat, Bmat, Yb, pmax, H, a, R), envir = .GlobalEnv)
+  png(file=paste(deparse(substitute(name)), ".SIRF.boot", ".png", sep=""),  width=1920, height=1080)
+  plot1 <- plot.sirf.boot(eval(as.name(paste(deparse(substitute(name)), ".SIRF.boot", sep=""))), m, H)
+  print(plot1)
+  dev.off()
+  
+  assign(paste(deparse(substitute(name)), ".SIRF.c.boot", sep=""), SVAR.sirf.boot(name, Amat, Bmat, Yb, pmax, H, a, R, cumulative = TRUE), envir = .GlobalEnv)
+  png(file=paste(deparse(substitute(name)), ".SIRF.c.boot", ".png", sep=""),  width=1920, height=1080)
+  plot2 <- plot.sirf.boot(eval(as.name(paste(deparse(substitute(name)), ".SIRF.c.boot", sep=""))), m, H)
+  print(plot2)
+  dev.off()
+  
+  assign(paste(deparse(substitute(name)), ".FEVD.boot", sep=""), SVAR.fevd.boot(name, Amat, Bmat, Yb, pmax, H, a, R), envir = .GlobalEnv)
+  png(file=paste(deparse(substitute(name)), ".FEVD.boot", ".png", sep=""),  width=1920, height=1080)
+  plot3 <- plot.fevd.boot(eval(as.name(paste(deparse(substitute(name)), ".FEVD.boot", sep=""))), m, H)
+  print(plot3)
+  dev.off()
+  
+  assign(paste(deparse(substitute(name)), ".ERPT.boot", sep=""), SVAR.erpt.boot(name, Amat, Bmat, Yb, pmax, H_ERPT, v1, v2, a, R, cumulative = TRUE), envir = .GlobalEnv)
+  png(file=paste(deparse(substitute(name)), ".ERPT.boot", ".png", sep=""),  width=1920, height=1080)
+  plot4 <- plot.erpt.boot(eval(as.name(paste(deparse(substitute(name)), ".ERPT.boot", sep=""))), H_ERPT)
+  print(plot4)
+  dev.off()
+  return (list(plot1, plot2, plot3, plot4))
+}
+
+SVARS_s_pcom<- function(name, v1, v2){
+  source("PS2_SVAR_Analysis.R")
+  source("PS2_SVAR_Bootstrap_sin_precios_int.R")
+  assign(paste(deparse(substitute(name)), ".SIRF.boot", sep=""), SVAR.sirf.boot(name, Amat, Bmat, Yb, pmax, H, a, R), envir = .GlobalEnv)
+  png(file=paste(deparse(substitute(name)), ".SIRF.boot", ".png", sep=""), width=1920, height=1080)
+  plot1 <- plot.sirf.boot(eval(as.name(paste(deparse(substitute(name)), ".SIRF.boot", sep=""))), m, H)
+  print(plot1)
+  dev.off()
+  
+  assign(paste(deparse(substitute(name)), ".SIRF.c.boot", sep=""), SVAR.sirf.boot(name, Amat, Bmat, Yb, pmax, H, a, R, cumulative = TRUE), envir = .GlobalEnv)
+  png(file=paste(deparse(substitute(name)), ".SIRF.c.boot", ".png", sep=""),  width=1920, height=1080)
+  plot2 <- plot.sirf.boot(eval(as.name(paste(deparse(substitute(name)), ".SIRF.c.boot", sep=""))), m, H)
+  print(plot2)
+  dev.off()
+  
+  assign(paste(deparse(substitute(name)), ".FEVD.boot", sep=""), SVAR.fevd.boot(name, Amat, Bmat, Yb, pmax, H, a, R), envir = .GlobalEnv)
+  png(file=paste(deparse(substitute(name)), ".FEVD.boot", ".png", sep=""),  width=1920, height=1080)
+  plot3 <- plot.fevd.boot(eval(as.name(paste(deparse(substitute(name)), ".FEVD.boot", sep=""))), m, H)
+  print(plot3)
+  dev.off()
+  
+  assign(paste(deparse(substitute(name)), ".ERPT.boot", sep=""), SVAR.erpt.boot(name, Amat, Bmat, Yb, pmax, H_ERPT, v1, v2, a, R, cumulative = TRUE), envir = .GlobalEnv)
+  png(file=paste(deparse(substitute(name)), ".ERPT.boot", ".png", sep=""),  width=1920, height=1080)
+  plot4 <- plot.erpt.boot(eval(as.name(paste(deparse(substitute(name)), ".ERPT.boot", sep=""))), H_ERPT)
+  print(plot4)
+  dev.off()
+  return (list(plot1, plot2, plot3, plot4))
+}
+
+
 
 # Data ####
 
@@ -88,37 +167,37 @@ SVAR
 
 H <- 18 # Horizon
 H_ERPT <- 120 # Horizon for ERPT
-
-source("PS2_SVAR_Analysis.R")
-source("PS2_SVAR_Bootstrap.R")
-source("PS2_SVAR_Plots.R")
-
+a <- 0.95 # Confidence level
+R <- 500 # No. of bootstrap replications
 
 #Reporte de resultados inciso 1
 #(quiza podriamos hacer graficos mas lindos con ggplot)
+Yb <- boot.rb.replicate(VAR, Yd0, pmax, R)
 
-# IRF
-SVAR.SIRF <- SVAR.sirf(SVAR, H)
-plot.sirf(SVAR.SIRF, m, H)
-
-# Cumulative IRF
-SVAR.SIRF.c <- SVAR.sirf(SVAR, H, cumulative = TRUE)
-plot.sirf(SVAR.SIRF.c, m, H)
-
-# FEVD
-SVAR.FEVD <- SVAR.fevd(SVAR, H)
-plot.fevd(SVAR.FEVD, m, H)
-
-# HD
-SVAR.HD <- SVAR.hd(SVAR)
-plot.hd(Yd, SVAR.HD, m, pmax)
-
-# ERPT
-SVAR.ERPT <- SVAR.erpt(SVAR, H_ERPT, 3, 2, cumulative = TRUE)
-plot.erpt(SVAR.ERPT, H_ERPT)
-
-#PENDIENTE: Revisar cuestiones de estacionariedad de las series.
-
+SVARS(SVAR, 3, 2)
+# 
+# # IRF
+# #SVAR.SIRF <- SVAR.sirf(SVAR, H)
+# plot.sirf.boot(SVAR.SIRF.boot, m, H)
+# 
+# # Cumulative IRF
+# #SVAR.SIRF.c <- SVAR.sirf(SVAR, H, cumulative = TRUE)
+# plot.sirf.boot(SVAR.SIRF.boot.c, m, H)
+# 
+# # FEVD
+# #SVAR.FEVD <- SVAR.fevd(SVAR, H)
+# plot.fevd.boot(SVAR.FEVD.boot, m, H)
+# 
+# # HD
+# #SVAR.HD <- SVAR.hd(SVAR)
+# #plot.hd.boot(Yd, SVAR.HD.boot, m, pmax)
+# 
+# # ERPT
+# #SVAR.ERPT.boot <- SVAR.erpt(SVAR, H_ERPT, 3, 2, cumulative = TRUE)
+# plot.erpt.boot(SVAR.ERPT.boot, H_ERPT)
+# 
+# #PENDIENTE: Revisar cuestiones de estacionariedad de las series.
+# 
 
 # Inciso 2 ####
 #Estimamos el modelo sin el índice de precios externos.
@@ -165,26 +244,45 @@ SVAR_2
 #hay que volver a llamarla m porque las funciones usadas a continuación están definidas usando m, y la cantidad de variables no se puede especificar de otra manera
 #después de haber calculado las cosas que queremos volvemos a darle el valor inicial.
 m <- m_2
+Yb <- boot.rb.replicate(VAR_2, Yd0_2,  pmax, R)
 
-# IRF
-SVAR_2.SIRF <- SVAR.sirf(SVAR_2, H)
-plot.sirf(SVAR_2.SIRF, m, H)
-
-# Cumulative IRF
-SVAR_2.SIRF.c <- SVAR.sirf(SVAR_2, H, cumulative = TRUE)
-plot.sirf(SVAR_2.SIRF.c, m, H)
-
-# FEVD
-SVAR_2.FEVD <- SVAR.fevd(SVAR_2, H)
-plot.fevd(SVAR_2.FEVD, m, H)
+#SVARS_s_pcom(SVAR_2, 2, 1)
+# 
+ SVAR_2.SIRF.boot <- SVAR.sirf.boot(SVAR_2, Amat_2, Bmat_2, Yb, pmax, H, a, R)
+ plot.sirf.boot(SVAR_2.SIRF.boot, m, H)
+# 
+# # Cumulative IRF (bootstrap)
+ SVAR_2.SIRF.c.boot <- SVAR.sirf.boot(SVAR_2, Amat_2, Bmat_2, Yb, pmax, H, a, R, cumulative = TRUE)
+ plot.sirf.boot(SVAR.SIRF.c.boot, m, H)
+# 
+# # FEVD (bootstrap)
+ SVAR_2.FEVD.boot <- SVAR.fevd.boot(SVAR_2, Amat_2, Bmat_2, Yb, pmax, H, a, R)
+ plot.fevd.boot(SVAR_2.FEVD.boot, m, H)
+# 
+# # ERPT (bootstrap)
+SVAR_2.ERPT.boot <- SVAR.erpt.boot(SVAR_2, Amat_2, Bmat_2, Yb, pmax, H_ERPT, 3, 2, a, R, cumulative = TRUE)
+ plot.erpt.boot(SVAR_2.ERPT.boot, H_ERPT)
+# 
+# 
+# # IRF
+# SVAR_2.SIRF.boot <- SVAR.sirf(SVAR_2, H)
+# plot.sirf.boot(SVAR_2.SIRF.boot, m, H)
+# 
+# # Cumulative IRF
+# #SVAR_2.SIRF.c <- SVAR.sirf(SVAR_2, H, cumulative = TRUE)
+# plot.sirf.boot(SVAR_2.SIRF.c.boot, m, H)
+# 
+# # FEVD
+# #SVAR_2.FEVD <- SVAR.fevd(SVAR_2, H)
+# plot.fevd.boot(SVAR_2.FEVD.boot, m, H)
 
 # HD
-SVAR_2.HD <- SVAR.hd(SVAR_2)
-plot.hd(Yd_2, SVAR_2.HD, m, pmax)
+#SVAR_2.HD <- SVAR.hd(SVAR_2)
+#plot.hd(Yd_2, SVAR_2.HD.boot, m, pmax)
 
 # ERPT
-SVAR_2.ERPT <- SVAR.erpt(SVAR_2, H_ERPT, 2, 1, cumulative = TRUE)
-plot.erpt(SVAR_2.ERPT, H_ERPT)
+#SVAR_2.ERPT <- SVAR.erpt(SVAR_2, H_ERPT, 2, 1, cumulative = TRUE)
+plot.erpt.boot(SVAR_2.ERPT.boot, H_ERPT)
 
 #Pendiente: comparar con resultados modelo inciso 1.
 
@@ -194,8 +292,6 @@ plot.erpt(SVAR_2.ERPT, H_ERPT)
 #sub-sample 1 ####: 
 #from January 2005 to July 2011
 
-remove(list = ls(all.names = TRUE))
-gc()
 
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
@@ -465,10 +561,77 @@ plot.erpt.boot(SVAR.ERPT.boot, H_ERPT)
 
 
 # Inciso 4 #### 
+#Funcion para ejecutar todos las funciones sobre el SVAR automaticamente.
+#El 1° argumento tiene que ser el nombre con el que uno quiere que terminen los outputs.
+
+
 # Parte A: calcular desde 2013 hasta 2019, usando IPC general.
 # Parte A.1: sin precios internacionales
 #Lo seteo en 11 porque para el IPC CABA no tenemos la variación de julio de 2012, con lo que no tenemos 12 meses como condición inicial, sino 11.
 #Por la misma razón tomo desde agosto de 2012 en lugar de desde julio.
+
+
+
+
+SVARS<- function(name, v1, v2){
+  source("PS2_SVAR_Analysis.R")
+  source("PS2_SVAR_Bootstrap.R")
+  assign(paste(deparse(substitute(name)), ".SIRF.boot", sep=""), SVAR.sirf.boot(name, Amat, Bmat, Yb, pmax, H, a, R), envir = .GlobalEnv)
+  png(file=paste(deparse(substitute(name)), ".SIRF.boot", ".png", sep=""), width=1920, height=1080)
+  plot1 <- plot.sirf.boot(eval(as.name(paste(deparse(substitute(name)), ".SIRF.boot", sep=""))), m, H)
+  print(plot1)
+  dev.off()
+  
+  assign(paste(deparse(substitute(name)), ".SIRF.c.boot", sep=""), SVAR.sirf.boot(name, Amat, Bmat, Yb, pmax, H, a, R, cumulative = TRUE), envir = .GlobalEnv)
+  png(file=paste(deparse(substitute(name)), ".SIRF.c.boot", ".png", sep=""),  width=1920, height=1080)
+  plot2 <- plot.sirf.boot(eval(as.name(paste(deparse(substitute(name)), ".SIRF.c.boot", sep=""))), m, H)
+  print(plot2)
+  dev.off()
+  
+  assign(paste(deparse(substitute(name)), ".FEVD.boot", sep=""), SVAR.fevd.boot(name, Amat, Bmat, Yb, pmax, H, a, R), envir = .GlobalEnv)
+  png(file=paste(deparse(substitute(name)), ".FEVD.boot", ".png", sep=""),  width=1920, height=1080)
+  plot3 <- plot.fevd.boot(eval(as.name(paste(deparse(substitute(name)), ".FEVD.boot", sep=""))), m, H)
+  print(plot3)
+  dev.off()
+  
+  assign(paste(deparse(substitute(name)), ".ERPT.boot", sep=""), SVAR.erpt.boot(name, Amat, Bmat, Yb, pmax, H_ERPT, v1, v2, a, R, cumulative = TRUE), envir = .GlobalEnv)
+  png(file=paste(deparse(substitute(name)), ".ERPT.boot", ".png", sep=""), width=1920, height=1080)
+  plot4 <- plot.erpt.boot(eval(as.name(paste(deparse(substitute(name)), ".ERPT.boot", sep=""))), H_ERPT)
+  print(plot4)
+  dev.off()
+  return (list(plot1, plot2, plot3, plot4))
+}
+
+SVARS_s_pcom<- function(name, v1, v2){
+  source("PS2_SVAR_Analysis.R")
+  source("PS2_SVAR_Bootstrap_sin_precios_int.R")
+  assign(paste(deparse(substitute(name)), ".SIRF.boot", sep=""), SVAR.sirf.boot(name, Amat, Bmat, Yb, pmax, H, a, R), envir = .GlobalEnv)
+  png(file=paste(deparse(substitute(name)), ".SIRF.boot", ".png", sep=""),  width=1920, height=1080)
+  plot1 <- plot.sirf.boot(eval(as.name(paste(deparse(substitute(name)), ".SIRF.boot", sep=""))), m, H)
+  print(plot1)
+  dev.off()
+  
+  assign(paste(deparse(substitute(name)), ".SIRF.c.boot", sep=""), SVAR.sirf.boot(name, Amat, Bmat, Yb, pmax, H, a, R, cumulative = TRUE), envir = .GlobalEnv)
+  png(file=paste(deparse(substitute(name)), ".SIRF.c.boot", ".png", sep=""),  width=1920, height=1080)
+  plot2 <- plot.sirf.boot(eval(as.name(paste(deparse(substitute(name)), ".SIRF.c.boot", sep=""))), m, H)
+  print(plot2)
+  dev.off()
+  
+  assign(paste(deparse(substitute(name)), ".FEVD.boot", sep=""), SVAR.fevd.boot(name, Amat, Bmat, Yb, pmax, H, a, R), envir = .GlobalEnv)
+  png(file=paste(deparse(substitute(name)), ".FEVD.boot", ".png", sep=""), width=1920, height=1080)
+  plot3 <- plot.fevd.boot(eval(as.name(paste(deparse(substitute(name)), ".FEVD.boot", sep=""))), m, H)
+  print(plot3)
+  dev.off()
+  
+  assign(paste(deparse(substitute(name)), ".ERPT.boot", sep=""), SVAR.erpt.boot(name, Amat, Bmat, Yb, pmax, H_ERPT, v1, v2, a, R, cumulative = TRUE), envir = .GlobalEnv)
+  png(file=paste(deparse(substitute(name)), ".ERPT.boot", ".png", sep=""),  width=1920, height=1080)
+  plot4 <- plot.erpt.boot(eval(as.name(paste(deparse(substitute(name)), ".ERPT.boot", sep=""))), H_ERPT)
+  print(plot4)
+  dev.off()
+  return (list(plot1, plot2, plot3, plot4))
+}
+
+
 pmax <- 11
 Yd_4 <- window(Yd.f, start = c(2012, 08), end = c(2019, 12))
 Yd_4_s_pcom <- Yd_4[, 2:3]
@@ -512,21 +675,36 @@ SVAR_4_s_pcom
 #Resultados parte A.1.
 m <- m_4_s_pcom
 N <- N_4_s_pcom 
-# IRF
-SVAR_4_s_pcom.SIRF <- SVAR.sirf(SVAR_4_s_pcom, H)
-plot.sirf(SVAR_4_s_pcom.SIRF, m, H)
 
-# Cumulative IRF
-SVAR_4_s_pcom.SIRF.c <- SVAR.sirf(SVAR_4_s_pcom, H, cumulative = TRUE)
-plot.sirf(SVAR_4_s_pcom.SIRF.c, m, H)
+source("PS2_SVAR_Plots.R")
 
-# FEVD
-SVAR_4_s_pcom.FEVD <- SVAR.fevd(SVAR_4_s_pcom, H)
-plot.fevd(SVAR_4_s_pcom.FEVD, m, H)
+H <- 18 # Horizon IR
+H_ERPT <- 120 # Horizon ERPT - variance decomp.
+a <- 0.95 # Confidence level
+R <- 500 # No. of bootstrap replications
+Yb <- boot.rb.replicate(VAR_4_s_pcom, Yd0_4_s_pcom,  pmax, R)
 
-# ERPT
-SVAR_4_s_pcom.ERPT <- SVAR.erpt(SVAR_4_s_pcom, H_ERPT, 2, 1, cumulative = TRUE)
-plot.erpt(SVAR_4_s_pcom.ERPT, H_ERPT)
+SVARS_s_pcom(SVAR_4_s_pcom, 2, 1)
+
+
+# 
+# # IRF (bootstrap)
+# #SVAR_4_s_pcom.SIRF.boot <- SVAR.sirf.boot(SVAR_4_s_pcom, Amat, Bmat, Yb, pmax, H, a, R)
+# plot.sirf.boot(SVAR_4_s_pcom.SIRF.boot, m, H)
+# 
+# # Cumulative IRF (bootstrap)
+# #SVAR_4_s_pcom.SIRF.c.boot <- SVAR.sirf.boot(SVAR_4_s_pcom, Amat, Bmat, Yb, pmax, H, a, R, cumulative = TRUE)
+# plot.sirf.boot(SVAR_4_s_pcom.SIRF.c.boot, m, H)
+# 
+# # FEVD (bootstrap)
+# #SVAR_4_s_pcom.FEVD.boot <- SVAR.fevd.boot(SVAR_4_s_pcom, Amat, Bmat, Yb, pmax, H, a, R)
+# plot.fevd.boot(SVAR_4_s_pcom.FEVD.boot, m, H)
+# 
+# #MARTIN: Problema con subscript, revisar.
+# # ERPT (bootstrap)
+# #SVAR_4_s_pcom.ERPT.boot <- SVAR.erpt.boot(SVAR_4_s_pcom, Amat, Bmat, Yb, pmax, H_ERPT, 2, 1, a, R, cumulative = TRUE)
+# plot.erpt.boot(SVAR_4_s_pcom.ERPT.boot, H_ERPT)
+
 
 #Parte A.2: con precios internacionales
 #Es 11 por la misma razón que en la parte anterior.
@@ -596,25 +774,46 @@ SVAR
 #Reporte de resultados inciso 4 parte a2
 #(quiza podriamos hacer graficos mas lindos con ggplot)
 
-# IRF
-SVAR_4_c_pcom.SIRF <- SVAR.sirf(SVAR_4_c_pcom, H)
-plot.sirf(SVAR_4_c_pcom.SIRF, m, H)
+Yb <- boot.rb.replicate(VAR_4_c_pcom, Yd0_4_c_pcom,  pmax, R)
+source("PS2_SVAR_Bootstrap.R")
+SVARS(SVAR_4_c_pcom, 3, 2)
+# 
+# # IRF (bootstrap)
+# #SVAR_4_c_pcom.SIRF.boot <- SVAR.sirf.boot(SVAR_4_c_pcom, Amat, Bmat, Yb, pmax, H, a, R)
+# plot.sirf.boot(SVAR_4_c_pcom.SIRF.boot, m, H)
+# 
+# # Cumulative IRF (bootstrap)
+# #SVAR_4_c_pcom.SIRF.c.boot <- SVAR.sirf.boot(SVAR_4_c_pcom, Amat, Bmat, Yb, pmax, H, a, R, cumulative = TRUE)
+# plot.sirf.boot(SVAR_4_c_pcom.SIRF.c.boot, m, H)
+# 
+# # FEVD (bootstrap)
+# #SVAR_4_c_pcom.FEVD.boot <- SVAR.fevd.boot(SVAR_4_c_pcom, Amat, Bmat, Yb, pmax, H, a, R)
+# plot.fevd.boot(SVAR_4_c_pcom.FEVD.boot, m, H)
+# 
+# # ERPT (bootstrap)
+# #SVAR_4_c_pcom.ERPT.boot <- SVAR.erpt.boot(SVAR_4_c_pcom, Amat, Bmat, Yb, pmax, H_ERPT, 3, 2, a, R, cumulative = TRUE)
+# plot.erpt.boot(SVAR_4_c_pcom.ERPT.boot, H_ERPT)
 
-# Cumulative IRF
-SVAR_4_c_pcom.SIRF.c <- SVAR.sirf(SVAR_4_c_pcom, H, cumulative = TRUE)
-plot.sirf(SVAR_4_c_pcom.SIRF.c, m, H)
-
-# FEVD
-SVAR_4_c_pcom.FEVD <- SVAR.fevd(SVAR_4_c_pcom, H)
-plot.fevd(SVAR_4_c_pcom.FEVD, m, H)
-
-# HD
-SVAR_4_c_pcom.HD <- SVAR.hd(SVAR_4_c_pcom)
-plot.hd(Yd, SVAR_4_c_pcom.HD, m, pmax)
+# 
+# # IRF
+# SVAR_4_c_pcom.SIRF <- SVAR.sirf(SVAR_4_c_pcom, H)
+# plot.sirf(SVAR_4_c_pcom.SIRF, m, H)
+# 
+# # Cumulative IRF
+# SVAR_4_c_pcom.SIRF.c <- SVAR.sirf(SVAR_4_c_pcom, H, cumulative = TRUE)
+# plot.sirf(SVAR_4_c_pcom.SIRF.c, m, H)
+# 
+# # FEVD
+# SVAR_4_c_pcom.FEVD <- SVAR.fevd(SVAR_4_c_pcom, H)
+# plot.fevd(SVAR_4_c_pcom.FEVD, m, H)
+# 
+# # HD
+# SVAR_4_c_pcom.HD <- SVAR.hd(SVAR_4_c_pcom)
+# plot.hd(Yd, SVAR_4_c_pcom.HD, m, pmax)
 
 # ERPT
-SVAR_4_c_pcom.ERPT <- SVAR.erpt(SVAR_4_c_pcom, H_ERPT, 3, 2, cumulative = TRUE)
-plot.erpt(SVAR_4_c_pcom.ERPT, H_ERPT)
+# #SVAR_4_c_pcom.ERPT <- SVAR.erpt(SVAR_4_c_pcom, H_ERPT, 3, 2, cumulative = TRUE)
+# plot.erpt(SVAR_4_c_pcom.ERPT, H_ERPT)
 
 
 #Parte B: con índice de precios de CABA.
@@ -665,25 +864,45 @@ serial.test(VAR_4_s_pcom, lags.bg = 12, type = "ES")
 
 # SVAR estimation (AB model configuration)
 SVAR_4_s_pcom_caba <- SVAR(VAR_4_s_pcom, Amat = Amat, Bmat = Bmat, lrtest = FALSE)
-SVAR_4_s_pcom_caba
+SVAR <- SVAR_4_s_pcom_caba
 
 #Resultados parte B.1.
 
-# IRF
-SVAR_4_s_pcom_caba.SIRF <- SVAR.sirf(SVAR_4_s_pcom_caba, H)
-plot.sirf(SVAR_4_s_pcom_caba.SIRF, m, H)
+Yb <- boot.rb.replicate(VAR_4_s_pcom, Yd0_4_s_pcom,  pmax, R)
+source("PS2_SVAR_Bootstrap_sin_precios_int.R")
+SVARS_s_pcom(SVAR_4_s_pcom_caba, 2, 1)
 
-# Cumulative IRF
-SVAR_4_s_pcom_caba.SIRF.c <- SVAR.sirf(SVAR_4_s_pcom_caba, H, cumulative = TRUE)
-plot.sirf(SVAR_4_s_pcom_caba.SIRF.c, m, H)
+# IRF (bootstrap)
+# 
+# plot.sirf.boot(SVAR_4_s_pcom_caba.SIRF.boot, m, H)
+# 
+# # Cumulative IRF (bootstrap)
+# plot.sirf.boot(SVAR_4_s_pcom_caba.SIRF.c.boot, m, H)
+# 
+# # FEVD (bootstrap)
+# plot.fevd.boot(SVAR_4_s_pcom_caba.FEVD.boot, m, H)
+# 
+# #MARTIN: Problema con subscript, revisar.
+# # ERPT (bootstrap)
+# plot.erpt.boot(SVAR_4_s_pcom_caba.ERPT.boot, H_ERPT)
 
-# FEVD
-SVAR_4_s_pcom_caba.FEVD <- SVAR.fevd(SVAR_4_s_pcom_caba, H)
-plot.fevd(SVAR_4_s_pcom_caba.FEVD, m, H)
-
-# ERPT
-SVAR_4_s_pcom_caba.ERPT <- SVAR.erpt(SVAR_4_s_pcom_caba, H_ERPT, 2, 1, cumulative = TRUE)
-plot.erpt(SVAR_4_s_pcom_caba.ERPT, H_ERPT)
+# 
+# 
+# # IRF
+# SVAR_4_s_pcom_caba.SIRF <- SVAR.sirf(SVAR_4_s_pcom_caba, H)
+# plot.sirf(SVAR_4_s_pcom_caba.SIRF, m, H)
+# 
+# # Cumulative IRF
+# SVAR_4_s_pcom_caba.SIRF.c <- SVAR.sirf(SVAR_4_s_pcom_caba, H, cumulative = TRUE)
+# plot.sirf(SVAR_4_s_pcom_caba.SIRF.c, m, H)
+# 
+# # FEVD
+# SVAR_4_s_pcom_caba.FEVD <- SVAR.fevd(SVAR_4_s_pcom_caba, H)
+# plot.fevd(SVAR_4_s_pcom_caba.FEVD, m, H)
+# 
+# # ERPT
+# SVAR_4_s_pcom_caba.ERPT <- SVAR.erpt(SVAR_4_s_pcom_caba, H_ERPT, 2, 1, cumulative = TRUE)
+# plot.erpt(SVAR_4_s_pcom_caba.ERPT, H_ERPT)
 
 
 #B.2: Con precios internacionales.
@@ -705,6 +924,7 @@ N_4_c_pcom_caba <- VAR_4_c_pcom$obs # No. of effective sample observations, excl
 m <- m_4_c_pcom_caba
 N <- N_4_c_pcom_caba 
 # Ad hoc function
+
 matC <- function(m, p, vx) {
   vy <- setdiff(1:m, vx)
   Cm <- matrix(1, m, m * p + 1)
@@ -719,7 +939,7 @@ matC <- function(m, p, vx) {
 }
 
 # Re-estimate VAR (no feedback from local vars. to pcom)
-VAR_4_c_pcom <- restrict(VAR_4_c_pcom, method = "man", resmat = matC(m_4_c_pcom, p_4_c_pcom, 1))
+VAR_4_c_pcom <- restrict(VAR_4_c_pcom, method = "man", resmat = matC(m, p, 1))
 VAR_4_c_pcom
 
 
@@ -748,32 +968,28 @@ for (i in 1:m) {
 # SVAR estimation (AB model configuration)
 #aca simplemente estimamos el SVAR imponiendo ciertas assumptions embebidas en A y en B
 #los NA en A y en B se van a estimar como en la slide 24 de la lecture 4
-SVAR_4_c_pcom <- SVAR(VAR_4_c_pcom, Amat = Amat, Bmat = Bmat, lrtest = FALSE)
-SVAR
+SVAR_4_c_pcom_caba <- SVAR(VAR_4_c_pcom, Amat = Amat, Bmat = Bmat, lrtest = FALSE)
+Yb <- boot.rb.replicate(VAR_4_c_pcom, Yd0_4_c_pcom,  pmax, R)
 
+SVARS(SVAR_4_c_pcom_caba, 3, 2)
 
 #Reporte de resultados inciso 4 parte a2
 #(quiza podriamos hacer graficos mas lindos con ggplot)
 
 # IRF
-SVAR_4_c_pcom_caba.SIRF <- SVAR.sirf(SVAR_4_c_pcom, H)
-plot.sirf(SVAR_4_c_pcom_caba.SIRF, m, H)
+plot.sirf.boot(SVAR_4_c_pcom_caba.SIRF.boot, m, H)
 
 # Cumulative IRF
-SVAR_4_c_pcom_caba.SIRF.c <- SVAR.sirf(SVAR_4_c_pcom, H, cumulative = TRUE)
-plot.sirf(SVAR_4_c_pcom_caba.SIRF.c, m, H)
+plot.sirf.boot(SVAR_4_c_pcom_caba.SIRF.c.boot, m, H)
 
 # FEVD
-SVAR_4_c_pcom_caba.FEVD <- SVAR.fevd(SVAR_4_c_pcom, H)
-plot.fevd(SVAR_4_c_pcom_caba.FEVD, m, H)
+plot.fevd.boot(SVAR_4_c_pcom_caba.FEVD.boot, m, H)
 
 # HD
-SVAR_4_c_pcom_caba.HD <- SVAR.hd(SVAR_4_c_pcom)
-plot.hd(Yd, SVAR_4_c_pcom_caba.HD, m, pmax)
+#plot.hd(Yd, SVAR_4_c_pcom_caba.HD.boot, m, pmax)
 
 # ERPT
-SVAR_4_c_pcom_caba.ERPT <- SVAR.erpt(SVAR_4_c_pcom, H_ERPT, 3, 2, cumulative = TRUE)
-plot.erpt(SVAR_4_c_pcom_caba.ERPT, H_ERPT)
+plot.erpt.boot(SVAR_4_c_pcom_caba.ERPT.boot, H_ERPT)
 
 
 # Inciso 5 ####
@@ -796,15 +1012,14 @@ plot(wages_real)
 wages_real  <- window(wages_real, start = c(2004, 12))
 
 var_wages_real <- 100 * diff(log(wages_real))  # log transformation
-plot(var_wages_real)
 
-Yd_5 <- cbind(Yd, var_wages_real) # Raw data in log
-Yd_5 <- window(Yd_5,start = c(2005, 01), end = c(2019, 12))
+Yd_5_1 <- cbind(Yd, var_wages_real) # Raw data in log
+Yd_5 <- window(Yd_5_1,start = c(2005, 01), end = c(2019, 12))
 
 #Parte A: sin precios internacionales
 
 pmax <- 12
-Yd_5_s_pcom <- Yd_5[, 2:3]
+Yd_5_s_pcom <- Yd_5[, 2:4]
 popt <- VARselect(Yd_5_s_pcom, lag.max = pmax, type = "const")
 p <- popt$selection[1] # AIC
 p_5_s_pcom <- p
@@ -839,26 +1054,29 @@ roots(VAR, modulus = TRUE)
 serial.test(VAR, lags.bg = 12, type = "ES")
 
 # SVAR estimation (AB model configuration)
-SVAR<- SVAR(VAR, Amat = Amat, Bmat = Bmat, lrtest = FALSE)
-SVAR
+SVAR_5_s_pcom <- SVAR(VAR, Amat = Amat, Bmat = Bmat, lrtest = FALSE)
+SVAR_5_s_pcom
 
 #Resultados parte A
 
-# IRF
-SVAR_5_s_pcom.SIRF <- SVAR.sirf(SVAR, H)
-plot.sirf(SVAR_5_s_pcom.SIRF, m, H)
-
-# Cumulative IRF
-SVAR_5_s_pcom.SIRF.c <- SVAR.sirf(SVAR, H, cumulative = TRUE)
-plot.sirf(SVAR_5_s_pcom.SIRF.c, m, H)
-
-# FEVD
-SVAR_5_s_pcom.FEVD <- SVAR.fevd(SVAR, H)
-plot.fevd(SVAR_5_s_pcom.FEVD, m, H)
-
-# ERPT
-SVAR_5_s_pcom.ERPT <- SVAR.erpt(SVAR, H_ERPT, 2, 1, cumulative = TRUE)
-plot.erpt(SVAR_5_s_pcom.ERPT, H_ERPT)
+Yb <- boot.rb.replicate(VAR, Yd0,  pmax, R)
+SVARS_s_pcom(SVAR_5_s_pcom, 2, 1)
+# 
+# # IRF
+# #SVAR_5_s_pcom.SIRF <- SVAR.sirf(SVAR, H)
+# plot.sirf.boot(SVAR_5_s_pcom.SIRF.boot, m, H)
+# 
+# # Cumulative IRF
+# #SVAR_5_s_pcom.SIRF.c <- SVAR.sirf(SVAR, H, cumulative = TRUE)
+# plot.sirf.boot(SVAR_5_s_pcom.SIRF.c.boot, m, H)
+# 
+# # FEVD
+# #SVAR_5_s_pcom.FEVD <- SVAR.fevd(SVAR, H)
+# plot.fevd.boot(SVAR_5_s_pcom.FEVD.boot, m, H)
+# 
+# # ERPT
+# #SVAR_5_s_pcom.ERPT <- SVAR.erpt(SVAR, H_ERPT, 2, 1, cumulative = TRUE)
+# plot.erpt.boot(SVAR_5_s_pcom.ERPT.boot, H_ERPT)
 
 #Parte B: con precios internacionales
 
@@ -921,31 +1139,33 @@ serial.test(VAR, lags.bg = 12, type = "ES")
 # SVAR estimation (AB model configuration)
 #aca simplemente estimamos el SVAR imponiendo ciertas assumptions embebidas en A y en B
 #los NA en A y en B se van a estimar como en la slide 24 de la lecture 4
-SVAR <- SVAR(VAR, Amat = Amat, Bmat = Bmat, lrtest = FALSE)
+SVAR_5_c_pcom <- SVAR(VAR, Amat = Amat, Bmat = Bmat, lrtest = FALSE)
 SVAR
 
-#Reporte de resultados inciso 4 parte a2
-#(quiza podriamos hacer graficos mas lindos con ggplot)
+#Reporte de resultados inciso 5
 
-# IRF
-SVAR_5_c_pcom.SIRF <- SVAR.sirf(SVAR, H)
-plot.sirf(SVAR_5_c_pcom.SIRF, m, H)
-
-# Cumulative IRF
-SVAR_5_c_pcom.SIRF.c <- SVAR.sirf(SVAR, H, cumulative = TRUE)
-plot.sirf(SVAR_5_c_pcom.SIRF.c, m, H)
-
-# FEVD
-SVAR_5_c_pcom.FEVD <- SVAR.fevd(SVAR, H)
-plot.fevd(SVAR_5_c_pcom.FEVD, m, H)
-
-# HD
-SVAR_5_c_pcom.HD <- SVAR.hd(SVAR)
-plot.hd(Yd, SVAR_5_c_pcom.HD, m, pmax)
-
-# ERPT
-SVAR_5_c_pcom.ERPT <- SVAR.erpt(SVAR, H_ERPT, 3, 2, cumulative = TRUE)
-plot.erpt(SVAR_5_c_pcom.ERPT, H_ERPT)
+Yb <- boot.rb.replicate(VAR, Yd0,  pmax, R)
+SVARS(SVAR_5_c_pcom, 3, 2)
+# 
+# # IRF
+# #SVAR_5_c_pcom.SIRF <- SVAR.sirf(SVAR, H)
+# plot.sirf.boot(SVAR_5_c_pcom.SIRF.boot, m, H)
+# 
+# # Cumulative IRF
+# #SVAR_5_c_pcom.SIRF.c <- SVAR.sirf(SVAR, H, cumulative = TRUE)
+# plot.sirf.boot(SVAR_5_c_pcom.SIRF.c.boot, m, H)
+# 
+# # FEVD
+# #SVAR_5_c_pcom.FEVD <- SVAR.fevd(SVAR, H)
+# plot.fevd.boot(SVAR_5_c_pcom.FEVD.boot, m, H)
+# 
+# # HD
+# #SVAR_5_c_pcom.HD <- SVAR.hd(SVAR)
+# #plot.hd.boot(Yd, SVAR_5_c_pcom.HD.boot, m, pmax)
+# 
+# # ERPT
+# #SVAR_5_c_pcom.ERPT <- SVAR.erpt(SVAR, H_ERPT, 3, 2, cumulative = TRUE)
+# plot.erpt.boot(SVAR_5_c_pcom.ERPT.boot, H_ERPT)
 
 
 
@@ -1000,9 +1220,8 @@ dlog_residuos <- as.numeric(dlog.emae.adj)
 dlog_residuos <- ts(dlog_residuos, start = c(2005, 01), end = c(2019, 12), frequency = 12)
 dlog_residuos
 
-Yd_7 <- cbind(Yd_6[,1:4], dlog_residuos) 
-Yd_6 <- Yd_7
-Yd_6_s_pcom <- Yd_6[, 2:4]
+Yd_6 <- cbind(Yd_6[,1:4], dlog_residuos) 
+Yd_6_s_pcom <- Yd_6[, 2:5]
 
 
 #Parte A: sin precios internacionales
@@ -1041,26 +1260,29 @@ roots(VAR, modulus = TRUE)
 serial.test(VAR, lags.bg = 12, type = "ES")
 
 # SVAR estimation (AB model configuration)
-SVAR<- SVAR(VAR, Amat = Amat, Bmat = Bmat, lrtest = FALSE)
+SVAR_6_s_pcom<- SVAR(VAR, Amat = Amat, Bmat = Bmat, lrtest = FALSE)
 SVAR
 
 #Resultados parte A
 
+Yb <- boot.rb.replicate(VAR, Yd0,  pmax, R)
+SVARS(SVAR_6_s_pcom, 2, 1)
+
 # IRF
-SVAR_6_s_pcom.SIRF <- SVAR.sirf(SVAR, H)
-plot.sirf(SVAR_6_s_pcom.SIRF, m, H)
+#SVAR_6_s_pcom.SIRF <- SVAR.sirf(SVAR, H)
+plot.sirf.boot(SVAR_6_s_pcom.SIRF.boot, m, H)
 
 # Cumulative IRF
-SVAR_6_s_pcom.SIRF.c <- SVAR.sirf(SVAR, H, cumulative = TRUE)
-plot.sirf(SVAR_6_s_pcom.SIRF.c, m, H)
+#SVAR_6_s_pcom.SIRF.c <- SVAR.sirf(SVAR, H, cumulative = TRUE)
+plot.sirf.boot(SVAR_6_s_pcom.SIRF.c.boot, m, H)
 
 # FEVD
-SVAR_6_s_pcom.FEVD <- SVAR.fevd(SVAR, H)
-plot.fevd(SVAR_6_s_pcom.FEVD, m, H)
+#SVAR_6_s_pcom.FEVD <- SVAR.fevd(SVAR, H)
+plot.fevd.boot(SVAR_6_s_pcom.FEVD.boot, m, H)
 
 # ERPT
-SVAR_6_s_pcom.ERPT <- SVAR.erpt(SVAR, H_ERPT, 2, 1, cumulative = TRUE)
-plot.erpt(SVAR_6_s_pcom.ERPT, H_ERPT)
+#SVAR_6_s_pcom.ERPT <- SVAR.erpt(SVAR, H_ERPT, 2, 1, cumulative = TRUE)
+plot.erpt.boot(SVAR_6_s_pcom.ERPT.boot, H_ERPT)
 
 #Parte B: con precios internacionales
 
@@ -1123,34 +1345,43 @@ serial.test(VAR, lags.bg = 12, type = "ES")
 # SVAR estimation (AB model configuration)
 #aca simplemente estimamos el SVAR imponiendo ciertas assumptions embebidas en A y en B
 #los NA en A y en B se van a estimar como en la slide 24 de la lecture 4
-SVAR <- SVAR(VAR, Amat = Amat, Bmat = Bmat, lrtest = FALSE)
+SVAR_6_c_pcom <- SVAR(VAR, Amat = Amat, Bmat = Bmat, lrtest = FALSE)
 SVAR
+
+
+Yb <- boot.rb.replicate(VAR, Yd0,  pmax, R)
+SVARS(SVAR_6_c_pcom, 3, 2)
 
 #Reporte de resultados inciso 4 parte a2
 #(quiza podriamos hacer graficos mas lindos con ggplot)
-
-# IRF
-SVAR_6_c_pcom.SIRF <- SVAR.sirf(SVAR, H)
-plot.sirf(SVAR_6_c_pcom.SIRF, m, H)
-
-# Cumulative IRF
-SVAR_6_c_pcom.SIRF.c <- SVAR.sirf(SVAR, H, cumulative = TRUE)
-plot.sirf(SVAR_6_c_pcom.SIRF.c, m, H)
-
-# FEVD
-SVAR_6_c_pcom.FEVD <- SVAR.fevd(SVAR, H)
-plot.fevd(SVAR_6_c_pcom.FEVD, m, H)
-
-# HD
-SVAR_6_c_pcom.HD <- SVAR.hd(SVAR)
-plot.hd(Yd, SVAR_6_c_pcom.HD, m, pmax)
-
-# ERPT
-SVAR_6_c_pcom.ERPT <- SVAR.erpt(SVAR, H_ERPT, 3, 2, cumulative = TRUE)
-plot.erpt(SVAR_6_c_pcom.ERPT, H_ERPT)
-
-
-
+# 
+# # IRF
+# #SVAR_6_c_pcom.SIRF <- SVAR.sirf(SVAR, H)
+# plot.sirf.boot(SVAR_6_c_pcom.SIRF.boot, m, H)
+# 
+# 
+# 
+# # Cumulative IRF
+# #SVAR_6_c_pcom.SIRF.c <- SVAR.sirf(SVAR, H, cumulative = TRUE)
+# plot.sirf.boot(SVAR_6_c_pcom.SIRF.c.boot, m, H)
+# png("my_plot.png")
+# 
+# # Code
+# plot.sirf.boot(SVAR_6_c_pcom.SIRF.c.boot, m, H)
+# 
+# # Close device
+# dev.off()
+# # FEVD
+# #SVAR_6_c_pcom.FEVD <- SVAR.fevd(SVAR, H)
+# plot.fevd.boot(SVAR_6_c_pcom.FEVD.boot, m, H)
+# 
+# # HD
+# #SVAR_6_c_pcom.HD <- SVAR.hd(SVAR)
+# #plot.hd.boot(Yd, SVAR_6_c_pcom.HD.boot, m, pmax)
+# 
+# # ERPT
+# #SVAR_6_c_pcom.ERPT <- SVAR.erpt(SVAR, H_ERPT, 3, 2, cumulative = TRUE)
+# plot.erpt.boot(SVAR_6_c_pcom.ERPT.boot, H_ERPT)
 
 # Punto 7 ####
 
@@ -1491,91 +1722,6 @@ SVAR.ERPT.boot_10 <- SVAR.erpt.boot(SVAR_10, Amat_10, Bmat_10, Yb_10, pmax, H_ER
 plot.erpt.boot(SVAR.ERPT.boot_10, H_ERPT)
 
 
-# Punto 11: primer ordenamiento ####
-#Construimos la brecha  #Esto está por si quieren ver
-#er_para_brecha = window(er, start = c(2004, 01), end = c(2019, 12))
-#brecha <- (dolar_ccl - er_para_brecha)
-#plot(brecha) 
-
-
-# Comenzamos el análisis VAR
-# Definimos las nuevas variables, con ventana temporal enero2005-diciembre2019
-pcom_log <- log(pcom)
-er_log <- log(er)
-brecha_log <- log(dolar_ccl)-log(er)
-pc_log <- log(pc)
-Yl.f_11 <- cbind(pcom_log, er_log, brecha_log, pc_log) 
-Yd.f_11 <- 100 * diff(Yl.f_11) # Variables en log-differences
-Yl_11 <- window(Yl.f_11, start = c(2005, 01), end = c(2019, 12))
-Yd_11 <- window(Yd.f_11, start = c(2005, 01), end = c(2019, 12))
-
-# Comenzamos análisis VAR
-popt_11 <- VARselect(Yd_11, lag.max = pmax, type = "const")
-popt_11
-p_11 <- popt_11$selection[1] # AIC
-
-# Valores iniciales
-Yd0_11 <- Yd_11[1:pmax, ] # Initial values
-Ydt_11 <- Yd_11[(pmax - p_11 + 1):nrow(Yd_11), ] 
-
-# Estimation
-VAR_11 <- VAR(Ydt_11, p = p_11, type = "const")
-
-# Control
-m_11 <- VAR_11$K # No. of variables in the VAR
-N_11 <- VAR_11$obs
-roots(VAR_11, modulus = TRUE)
-serial.test(VAR_11, lags.bg = 1, type = "ES") #DUDA: me lo estima con un solo lag, ¿les parece OK hacerlo así?
-
-# Re-estimación con restricciones:
-# Re-estimate VAR (no feedback from local vars. to pcom)
-VAR_11 <- restrict(VAR_11, method = "man", resmat = matC(m_11, p_11, 1))
-VAR_11
-
-# SVAR estimation
-
-# A Matrix
-Amat_11 <- diag(m_11)
-for (i in 2:m_11) {
-  for (j in 1:(i - 1)) {
-    Amat_11[i, j] <- NA
-  }
-}
-
-# B Matrix
-#esta representa a omega (en el caso en el que no normalizamos el desvio de los errores a 1)
-Bmat_11 <- matrix(0, m_11, m_11)
-for (i in 1:m_11) {
-  Bmat_11[i, i] <- NA
-}
-
-# SVAR estimation (AB model configuration)
-SVAR_11 <- SVAR(VAR_11, Amat = Amat_11, Bmat = Bmat_11, lrtest = FALSE)
-
-
-# Replicación con bootstrap y gráfico final con bandas de confianza
-a <- 0.95 # Confidence level
-R <- 1000 # No. of bootstrap replications
-
-Yb_11 <- boot.rb.replicate(VAR_11, Yd0_11, pmax, R)
-N <- N_11
-m <- m_11
-SVAR.SIRF.boot_11 <- SVAR.sirf.boot(SVAR_11, Amat_11, Bmat_11, Yb_11, pmax, H, a, R)
-plot.sirf.boot(SVAR.SIRF.boot_11, m = m_11, H)
-
-# Cumulative IRF (bootstrap)
-SVAR.SIRF.c.boot_11 <- SVAR.sirf.boot(SVAR_11, Amat_11, Bmat_11, Yb_11, pmax, H, a, R, cumulative = TRUE)
-plot.sirf.boot(SVAR.SIRF.c.boot_11, m = m_11 , H)
-
-# FEVD (bootstrap)
-SVAR.FEVD.boot_11 <- SVAR.fevd.boot(SVAR_11, Amat_11, Bmat_11, Yb_11, pmax, H, a, R)
-plot.fevd.boot(SVAR.FEVD.boot_11, m = m_11, H)
-
-# ERPT (bootstrap)
-SVAR.ERPT.boot_11 <- SVAR.erpt.boot(SVAR_11, Amat_11, Bmat_11, Yb_11, pmax, H_ERPT, 4, 2, a, R, cumulative = TRUE) # DUDA: Acá puse el 4 en vez del 3 porque sino había un problema con las dimensiones y no estimaba, pero NO ESTOY muy seguro. No me termina de quedar claro qué representan estos argumentos (los números) en la función.
-plot.erpt.boot(SVAR.ERPT.boot_11, H_ERPT)
-
-
 #Punto 11: segundo ordenamiento ####
 
 #Nuevo orden:
@@ -1655,97 +1801,7 @@ plot.erpt.boot(SVAR.ERPT.boot_11b, H_ERPT)
 #Punto 12: primer ordenamiento ####
 #Tomamos como períodos con controles de capitales al período octubre 2011-diciembre2015 y desde septiembre 2019.
 #Fuentes: AFIP con la Resolución General 3210 y la Resolución General 3819 , Poder Ejecutivo Nacional con DNU 19/609
-
-#Creamos dos variables dummies:
-library(tstools) 
-
-dummy_cepo1 <- create_dummy_ts(end_basic = c(2019,12), dummy_start = c(2011,10), dummy_end =c(2015,12), sp= NULL, start_basic = c(2004, 01), frequency = 12)
-dummy_cepo2 <- create_dummy_ts(end_basic = c(2019,12), dummy_start = c(2019,09), dummy_end =c(2019,12), sp= NULL, start_basic = c(2004, 01), frequency = 12)
-
-#Creamos la variable de la brecha que toma valor 0 cuando no hay controles de capitales:
-brecha_con_cepo1 <- brecha_log*dummy_cepo1
-brecha_con_cepo1 <- window(brecha_con_cepo1, end = c(2019, 08))
-brecha_con_cepo2 <- brecha_log*dummy_cepo2
-brecha_con_cepo2 <- window(brecha_con_cepo2, start = c(2019, 09))
-
-brecha_con_cepo_log <- concat_ts(brecha_con_cepo1, brecha_con_cepo2)
-plot(brecha_con_cepo_log)
-
-#Eliminamos variables intermedias:
-remove(brecha_con_cepo1, brecha_con_cepo2)
-
-#Volvemos a llamar al paquete, para evitar <<enmascaramientos>> con paquete ts
-library(vars)
-
-#Armamos vectores de variables
-Yl.f_12 <- cbind(pcom_log, er_log, brecha_con_cepo_log, pc_log) 
-Yd.f_12 <- 100 * diff(Yl.f_12) # Variables en log-differences
-Yl_12 <- window(Yl.f_12, start = c(2005, 01), end = c(2019, 12))
-Yd_12 <- window(Yd.f_12, start = c(2005, 01), end = c(2019, 12))
-
-# Comenzamos análisis VAR
-popt_12 <- VARselect(Yd_12, lag.max = pmax, type = "const")
-popt_12
-p_12 <- popt_12$selection[1] # AIC
-
-# Valores iniciales
-Yd0_12 <- Yd_12[1:pmax, ] # Initial values
-Ydt_12 <- Yd_12[(pmax - p_12 + 1):nrow(Yd_12), ] 
-
-# Estimation
-VAR_12 <- VAR(Ydt_12, p = p_12, type = "const")
-
-# Control
-m_12 <- VAR_12$K # No. of variables in the VAR
-N_12 <- VAR_12$obs
-roots(VAR_12, modulus = TRUE)
-serial.test(VAR_12, lags.bg = 1, type = "ES") #DUDA: me lo estima con un solo lag, ¿les parece OK hacerlo así?
-
-# Re-estimación con restricciones:
-# Re-estimate VAR (no feedback from local vars. to pcom)
-VAR_12 <- restrict(VAR_12, method = "man", resmat = matC(m_12, p_12, 1))
-VAR_12
-
-# SVAR estimation
-
-# A Matrix
-Amat_12 <- diag(m_12)
-for (i in 2:m_12) {
-  for (j in 1:(i - 1)) {
-    Amat_12[i, j] <- NA
-  }
-}
-
-# B Matrix
-#esta representa a omega (en el caso en el que no normalizamos el desvio de los errores a 1)
-Bmat_12 <- matrix(0, m_12, m_12)
-for (i in 1:m_12) {
-  Bmat_12[i, i] <- NA
-}
-
-# SVAR estimation (AB model configuration)
-SVAR_12 <- SVAR(VAR_12, Amat = Amat_12, Bmat = Bmat_12, lrtest = FALSE)
-
-
-# Replicación con bootstrap y gráfico final con bandas de confianza
-a <- 0.95 # Confidence level
-R <- 1000 # No. of bootstrap replications
-
-Yb_12 <- boot.rb.replicate(VAR_12, Yd0_12, pmax, R)
-N <- N_11
-m <- m_12
-SVAR.SIRF.boot_12 <- SVAR.sirf.boot(SVAR_12, Amat_12, Bmat_12, Yb_12, pmax, H, a, R)
-plot.sirf.boot(SVAR.SIRF.boot_12, m = m_12, H)
-
-# Cumulative IRF (bootstrap)
-SVAR.SIRF.c.boot_12 <- SVAR.sirf.boot(SVAR_12, Amat_12, Bmat_12, Yb_12, pmax, H, a, R, cumulative = TRUE)
-plot.sirf.boot(SVAR.SIRF.c.boot_12, m = m_12 , H)
-
-# FEVD (bootstrap)
-SVAR.FEVD.boot_12 <- SVAR.fevd.boot(SVAR_12, Amat_12, Bmat_12, Yb_12, pmax, H, a, R)
-plot.fevd.boot(SVAR.FEVD.boot_12, m = m_12, H)
-
-# ERPT (bootstrap)
+@@ -1673,3 +1749,77 @@ plot.fevd.boot(SVAR.FEVD.boot_12, m = m_12, H)
 SVAR.ERPT.boot_12 <- SVAR.erpt.boot(SVAR_12, Amat_12, Bmat_12, Yb_12, pmax, H_ERPT, 4, 2, a, R, cumulative = TRUE) # DUDA: Acá puse el 4 en vez del 3 porque sino había un problema con las dimensiones y no estimaba, pero NO ESTOY muy seguro. No me termina de quedar claro qué representan estos argumentos (los números) en la función.
 plot.erpt.boot(SVAR.ERPT.boot_12, H_ERPT)
 
@@ -1822,4 +1878,3 @@ plot.fevd.boot(SVAR.FEVD.boot_12b, m = m_12b, H)
 # ERPT (bootstrap)
 SVAR.ERPT.boot_12b <- SVAR.erpt.boot(SVAR_12b, Amat_12b, Bmat_12b, Yb_12b, pmax, H_ERPT, 4, 3, a, R, cumulative = TRUE)
 plot.erpt.boot(SVAR.ERPT.boot_12b, H_ERPT)
-
