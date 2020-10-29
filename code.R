@@ -21,60 +21,47 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 source("PS2_SVAR_Plots.R")
 source("PS2_SVAR_Analysis.R")
 source("PS2_SVAR_Bootstrap.R")
+source("Prueba_vars and ggplot.R")
 
 SVARS<- function(name, v1, v2){
   source("PS2_SVAR_Analysis.R")
   source("PS2_SVAR_Bootstrap.R")
   assign(paste(deparse(substitute(name)), ".SIRF.boot", sep=""), SVAR.sirf.boot(name, Amat, Bmat, Yb, pmax, H, a, R), envir = .GlobalEnv)
-  png(file=paste(deparse(substitute(name)), ".SIRF.boot", ".png", sep=""),  width=1920, height=1080)
-  plot1 <- plot.sirf.boot(eval(as.name(paste(deparse(substitute(name)), ".SIRF.boot", sep=""))), m, H)
-  print(plot1)
-  dev.off()
-  
   assign(paste(deparse(substitute(name)), ".SIRF.c.boot", sep=""), SVAR.sirf.boot(name, Amat, Bmat, Yb, pmax, H, a, R, cumulative = TRUE), envir = .GlobalEnv)
-  png(file=paste(deparse(substitute(name)), ".SIRF.c.boot", ".png", sep=""),  width=1920, height=1080)
-  plot2 <- plot.sirf.boot(eval(as.name(paste(deparse(substitute(name)), ".SIRF.c.boot", sep=""))), m, H)
-  print(plot2)
-  dev.off()
-  
   assign(paste(deparse(substitute(name)), ".FEVD.boot", sep=""), SVAR.fevd.boot(name, Amat, Bmat, Yb, pmax, H, a, R), envir = .GlobalEnv)
-  png(file=paste(deparse(substitute(name)), ".FEVD.boot", ".png", sep=""),  width=1920, height=1080)
-  plot3 <- plot.fevd.boot(eval(as.name(paste(deparse(substitute(name)), ".FEVD.boot", sep=""))), m, H)
-  print(plot3)
-  dev.off()
-  
   assign(paste(deparse(substitute(name)), ".ERPT.boot", sep=""), SVAR.erpt.boot(name, Amat, Bmat, Yb, pmax, H_ERPT, v1, v2, a, R, cumulative = TRUE), envir = .GlobalEnv)
-  png(file=paste(deparse(substitute(name)), ".ERPT.boot", ".png", sep=""),  width=1920, height=1080)
-  plot4 <- plot.erpt.boot(eval(as.name(paste(deparse(substitute(name)), ".ERPT.boot", sep=""))), H_ERPT)
-  print(plot4)
-  dev.off()
-  return (list(plot1, plot2, plot3, plot4))
+  
 }
 
 SVARS_s_pcom<- function(name, v1, v2){
   source("PS2_SVAR_Analysis.R")
   source("PS2_SVAR_Bootstrap_sin_precios_int.R")
   assign(paste(deparse(substitute(name)), ".SIRF.boot", sep=""), SVAR.sirf.boot(name, Amat, Bmat, Yb, pmax, H, a, R), envir = .GlobalEnv)
-  png(file=paste(deparse(substitute(name)), ".SIRF.boot", ".png", sep=""), width=1920, height=1080)
+  assign(paste(deparse(substitute(name)), ".SIRF.c.boot", sep=""), SVAR.sirf.boot(name, Amat, Bmat, Yb, pmax, H, a, R, cumulative = TRUE), envir = .GlobalEnv)
+  assign(paste(deparse(substitute(name)), ".FEVD.boot", sep=""), SVAR.fevd.boot(name, Amat, Bmat, Yb, pmax, H, a, R), envir = .GlobalEnv)
+  assign(paste(deparse(substitute(name)), ".ERPT.boot", sep=""), SVAR.erpt.boot(name, Amat, Bmat, Yb, pmax, H_ERPT, v1, v2, a, R, cumulative = TRUE), envir = .GlobalEnv)
+}
+
+graficos <- function(name, width, height){
+  
+  png(file=paste(deparse(substitute(name)), ".SIRF.boot", ".png", sep=""),  width= width, height= height)
   plot1 <- plot.sirf.boot(eval(as.name(paste(deparse(substitute(name)), ".SIRF.boot", sep=""))), m, H)
   print(plot1)
   dev.off()
   
-  assign(paste(deparse(substitute(name)), ".SIRF.c.boot", sep=""), SVAR.sirf.boot(name, Amat, Bmat, Yb, pmax, H, a, R, cumulative = TRUE), envir = .GlobalEnv)
-  png(file=paste(deparse(substitute(name)), ".SIRF.c.boot", ".png", sep=""),  width=1920, height=1080)
+  
+  png(file=paste(deparse(substitute(name)), ".SIRF.c.boot", ".png", sep=""), width= width, height= height)
   plot2 <- plot.sirf.boot(eval(as.name(paste(deparse(substitute(name)), ".SIRF.c.boot", sep=""))), m, H)
   print(plot2)
   dev.off()
   
-  assign(paste(deparse(substitute(name)), ".FEVD.boot", sep=""), SVAR.fevd.boot(name, Amat, Bmat, Yb, pmax, H, a, R), envir = .GlobalEnv)
-  png(file=paste(deparse(substitute(name)), ".FEVD.boot", ".png", sep=""),  width=1920, height=1080)
+  png(file=paste(deparse(substitute(name)), ".FEVD.boot", ".png", sep=""), width= width, height= height)
   plot3 <- plot.fevd.boot(eval(as.name(paste(deparse(substitute(name)), ".FEVD.boot", sep=""))), m, H)
   print(plot3)
   dev.off()
   
-  assign(paste(deparse(substitute(name)), ".ERPT.boot", sep=""), SVAR.erpt.boot(name, Amat, Bmat, Yb, pmax, H_ERPT, v1, v2, a, R, cumulative = TRUE), envir = .GlobalEnv)
-  png(file=paste(deparse(substitute(name)), ".ERPT.boot", ".png", sep=""),  width=1920, height=1080)
-  plot4 <- plot.erpt.boot(eval(as.name(paste(deparse(substitute(name)), ".ERPT.boot", sep=""))), H_ERPT)
+  png(file=paste(deparse(substitute(name)), ".ERPT.boot", ".png", sep=""),  width=800, height=600)
+  plot4 <- grafico(eval(as.name(paste(deparse(substitute(name)), ".ERPT.boot", sep=""))), H_ERPT)
   print(plot4)
   dev.off()
   return (list(plot1, plot2, plot3, plot4))
@@ -175,6 +162,7 @@ R <- 500 # No. of bootstrap replications
 Yb <- boot.rb.replicate(VAR, Yd0, pmax, R)
 
 SVARS(SVAR, 3, 2)
+graficos(SVAR, 800, 800)
 # 
 # # IRF
 # #SVAR.SIRF <- SVAR.sirf(SVAR, H)
@@ -206,6 +194,7 @@ Yd_2 <- Yd[, 2:3]
 popt_2 <- VARselect(Yd_2, lag.max = pmax, type = "const")
 popt_2
 p_2 <- popt_2$selection[1] # AIC
+p_2 <- 1
 
 Yd0_2 <- Yd_2[1:pmax, ] # Initial values
 Ydt_2 <- Yd_2[(pmax - p_2 + 1):nrow(Yd_2), ] 
@@ -247,21 +236,31 @@ m <- m_2
 Yb <- boot.rb.replicate(VAR_2, Yd0_2,  pmax, R)
 
 #SVARS_s_pcom(SVAR_2, 2, 1)
-# 
+
  SVAR_2.SIRF.boot <- SVAR.sirf.boot(SVAR_2, Amat_2, Bmat_2, Yb, pmax, H, a, R)
+ png(file="SVAR_2.sirf.boot.png",  width=800, height=800)
  plot.sirf.boot(SVAR_2.SIRF.boot, m, H)
+ dev.off()
+ 
 # 
 # # Cumulative IRF (bootstrap)
  SVAR_2.SIRF.c.boot <- SVAR.sirf.boot(SVAR_2, Amat_2, Bmat_2, Yb, pmax, H, a, R, cumulative = TRUE)
+ png(file="SVAR_2.sirf.c.boot.png",   width=800, height=800)
  plot.sirf.boot(SVAR.SIRF.c.boot, m, H)
+ dev.off()
+ 
 # 
 # # FEVD (bootstrap)
  SVAR_2.FEVD.boot <- SVAR.fevd.boot(SVAR_2, Amat_2, Bmat_2, Yb, pmax, H, a, R)
+ png(file="SVAR_2.FEVD.boot.png",   width=800, height=800)
  plot.fevd.boot(SVAR_2.FEVD.boot, m, H)
+ dev.off()
 # 
 # # ERPT (bootstrap)
-SVAR_2.ERPT.boot <- SVAR.erpt.boot(SVAR_2, Amat_2, Bmat_2, Yb, pmax, H_ERPT, 3, 2, a, R, cumulative = TRUE)
- plot.erpt.boot(SVAR_2.ERPT.boot, H_ERPT)
+SVAR_2.ERPT.boot <- SVAR.erpt.boot(SVAR_2, Amat_2, Bmat_2, Yb, pmax, H_ERPT, 2, 1, a, R, cumulative = TRUE)
+png(file="SVAR_2.ERPT.boot.png",   width=800, height=600)
+ grafico(SVAR_2.ERPT.boot, H_ERPT)
+ dev.off()
 # 
 # 
 # # IRF
@@ -571,65 +570,54 @@ plot.erpt.boot(SVAR.ERPT.boot, H_ERPT)
 #Por la misma razón tomo desde agosto de 2012 en lugar de desde julio.
 
 
+source("Prueba_vars and ggplot.R")
+source("PS2_SVAR_Plots.R")
 
 
 SVARS<- function(name, v1, v2){
   source("PS2_SVAR_Analysis.R")
   source("PS2_SVAR_Bootstrap.R")
   assign(paste(deparse(substitute(name)), ".SIRF.boot", sep=""), SVAR.sirf.boot(name, Amat, Bmat, Yb, pmax, H, a, R), envir = .GlobalEnv)
-  png(file=paste(deparse(substitute(name)), ".SIRF.boot", ".png", sep=""), width=1920, height=1080)
-  plot1 <- plot.sirf.boot(eval(as.name(paste(deparse(substitute(name)), ".SIRF.boot", sep=""))), m, H)
-  print(plot1)
-  dev.off()
-  
   assign(paste(deparse(substitute(name)), ".SIRF.c.boot", sep=""), SVAR.sirf.boot(name, Amat, Bmat, Yb, pmax, H, a, R, cumulative = TRUE), envir = .GlobalEnv)
-  png(file=paste(deparse(substitute(name)), ".SIRF.c.boot", ".png", sep=""),  width=1920, height=1080)
-  plot2 <- plot.sirf.boot(eval(as.name(paste(deparse(substitute(name)), ".SIRF.c.boot", sep=""))), m, H)
-  print(plot2)
-  dev.off()
-  
   assign(paste(deparse(substitute(name)), ".FEVD.boot", sep=""), SVAR.fevd.boot(name, Amat, Bmat, Yb, pmax, H, a, R), envir = .GlobalEnv)
-  png(file=paste(deparse(substitute(name)), ".FEVD.boot", ".png", sep=""),  width=1920, height=1080)
-  plot3 <- plot.fevd.boot(eval(as.name(paste(deparse(substitute(name)), ".FEVD.boot", sep=""))), m, H)
-  print(plot3)
-  dev.off()
-  
   assign(paste(deparse(substitute(name)), ".ERPT.boot", sep=""), SVAR.erpt.boot(name, Amat, Bmat, Yb, pmax, H_ERPT, v1, v2, a, R, cumulative = TRUE), envir = .GlobalEnv)
-  png(file=paste(deparse(substitute(name)), ".ERPT.boot", ".png", sep=""), width=1920, height=1080)
-  plot4 <- plot.erpt.boot(eval(as.name(paste(deparse(substitute(name)), ".ERPT.boot", sep=""))), H_ERPT)
-  print(plot4)
-  dev.off()
-  return (list(plot1, plot2, plot3, plot4))
+  
 }
 
 SVARS_s_pcom<- function(name, v1, v2){
   source("PS2_SVAR_Analysis.R")
   source("PS2_SVAR_Bootstrap_sin_precios_int.R")
   assign(paste(deparse(substitute(name)), ".SIRF.boot", sep=""), SVAR.sirf.boot(name, Amat, Bmat, Yb, pmax, H, a, R), envir = .GlobalEnv)
-  png(file=paste(deparse(substitute(name)), ".SIRF.boot", ".png", sep=""),  width=1920, height=1080)
+  assign(paste(deparse(substitute(name)), ".SIRF.c.boot", sep=""), SVAR.sirf.boot(name, Amat, Bmat, Yb, pmax, H, a, R, cumulative = TRUE), envir = .GlobalEnv)
+  assign(paste(deparse(substitute(name)), ".FEVD.boot", sep=""), SVAR.fevd.boot(name, Amat, Bmat, Yb, pmax, H, a, R), envir = .GlobalEnv)
+  assign(paste(deparse(substitute(name)), ".ERPT.boot", sep=""), SVAR.erpt.boot(name, Amat, Bmat, Yb, pmax, H_ERPT, v1, v2, a, R, cumulative = TRUE), envir = .GlobalEnv)
+}
+
+graficos <- function(name, width, height){
+  
+  png(file=paste(deparse(substitute(name)), ".SIRF.boot", ".png", sep=""),  width= width, height= height)
   plot1 <- plot.sirf.boot(eval(as.name(paste(deparse(substitute(name)), ".SIRF.boot", sep=""))), m, H)
   print(plot1)
   dev.off()
   
-  assign(paste(deparse(substitute(name)), ".SIRF.c.boot", sep=""), SVAR.sirf.boot(name, Amat, Bmat, Yb, pmax, H, a, R, cumulative = TRUE), envir = .GlobalEnv)
-  png(file=paste(deparse(substitute(name)), ".SIRF.c.boot", ".png", sep=""),  width=1920, height=1080)
+  
+  png(file=paste(deparse(substitute(name)), ".SIRF.c.boot", ".png", sep=""), width= width, height= height)
   plot2 <- plot.sirf.boot(eval(as.name(paste(deparse(substitute(name)), ".SIRF.c.boot", sep=""))), m, H)
   print(plot2)
   dev.off()
   
-  assign(paste(deparse(substitute(name)), ".FEVD.boot", sep=""), SVAR.fevd.boot(name, Amat, Bmat, Yb, pmax, H, a, R), envir = .GlobalEnv)
-  png(file=paste(deparse(substitute(name)), ".FEVD.boot", ".png", sep=""), width=1920, height=1080)
+  png(file=paste(deparse(substitute(name)), ".FEVD.boot", ".png", sep=""),  width= width, height= height)
   plot3 <- plot.fevd.boot(eval(as.name(paste(deparse(substitute(name)), ".FEVD.boot", sep=""))), m, H)
   print(plot3)
   dev.off()
   
-  assign(paste(deparse(substitute(name)), ".ERPT.boot", sep=""), SVAR.erpt.boot(name, Amat, Bmat, Yb, pmax, H_ERPT, v1, v2, a, R, cumulative = TRUE), envir = .GlobalEnv)
-  png(file=paste(deparse(substitute(name)), ".ERPT.boot", ".png", sep=""),  width=1920, height=1080)
-  plot4 <- plot.erpt.boot(eval(as.name(paste(deparse(substitute(name)), ".ERPT.boot", sep=""))), H_ERPT)
+  png(file=paste(deparse(substitute(name)), ".ERPT.boot", ".png", sep=""),  width=800, height=600)
+  plot4 <- grafico(eval(as.name(paste(deparse(substitute(name)), ".ERPT.boot", sep=""))), H_ERPT)
   print(plot4)
   dev.off()
   return (list(plot1, plot2, plot3, plot4))
 }
+
 
 
 pmax <- 11
@@ -676,7 +664,6 @@ SVAR_4_s_pcom
 m <- m_4_s_pcom
 N <- N_4_s_pcom 
 
-source("PS2_SVAR_Plots.R")
 
 H <- 18 # Horizon IR
 H_ERPT <- 120 # Horizon ERPT - variance decomp.
@@ -685,8 +672,7 @@ R <- 500 # No. of bootstrap replications
 Yb <- boot.rb.replicate(VAR_4_s_pcom, Yd0_4_s_pcom,  pmax, R)
 
 SVARS_s_pcom(SVAR_4_s_pcom, 2, 1)
-
-
+graficos(SVAR_4_s_pcom)
 # 
 # # IRF (bootstrap)
 # #SVAR_4_s_pcom.SIRF.boot <- SVAR.sirf.boot(SVAR_4_s_pcom, Amat, Bmat, Yb, pmax, H, a, R)
@@ -777,6 +763,8 @@ SVAR
 Yb <- boot.rb.replicate(VAR_4_c_pcom, Yd0_4_c_pcom,  pmax, R)
 source("PS2_SVAR_Bootstrap.R")
 SVARS(SVAR_4_c_pcom, 3, 2)
+graficos(SVAR_4_c_pcom)
+
 # 
 # # IRF (bootstrap)
 # #SVAR_4_c_pcom.SIRF.boot <- SVAR.sirf.boot(SVAR_4_c_pcom, Amat, Bmat, Yb, pmax, H, a, R)
@@ -871,6 +859,7 @@ SVAR <- SVAR_4_s_pcom_caba
 Yb <- boot.rb.replicate(VAR_4_s_pcom, Yd0_4_s_pcom,  pmax, R)
 source("PS2_SVAR_Bootstrap_sin_precios_int.R")
 SVARS_s_pcom(SVAR_4_s_pcom_caba, 2, 1)
+graficos(SVAR_4_s_pcom_caba)
 
 # IRF (bootstrap)
 # 
@@ -972,7 +961,7 @@ SVAR_4_c_pcom_caba <- SVAR(VAR_4_c_pcom, Amat = Amat, Bmat = Bmat, lrtest = FALS
 Yb <- boot.rb.replicate(VAR_4_c_pcom, Yd0_4_c_pcom,  pmax, R)
 
 SVARS(SVAR_4_c_pcom_caba, 3, 2)
-
+graficos(SVAR_4_c_pcom_caba)
 #Reporte de resultados inciso 4 parte a2
 #(quiza podriamos hacer graficos mas lindos con ggplot)
 
@@ -1061,6 +1050,7 @@ SVAR_5_s_pcom
 
 Yb <- boot.rb.replicate(VAR, Yd0,  pmax, R)
 SVARS_s_pcom(SVAR_5_s_pcom, 2, 1)
+graficos(SVAR_5_s_pcom)
 # 
 # # IRF
 # #SVAR_5_s_pcom.SIRF <- SVAR.sirf(SVAR, H)
@@ -1146,6 +1136,7 @@ SVAR
 
 Yb <- boot.rb.replicate(VAR, Yd0,  pmax, R)
 SVARS(SVAR_5_c_pcom, 3, 2)
+graficos(SVAR_5_c_pcom)
 # 
 # # IRF
 # #SVAR_5_c_pcom.SIRF <- SVAR.sirf(SVAR, H)
@@ -1267,6 +1258,7 @@ SVAR
 
 Yb <- boot.rb.replicate(VAR, Yd0,  pmax, R)
 SVARS(SVAR_6_s_pcom, 2, 1)
+graficos(SVAR_6_s_pcom, 800, 800)
 
 # IRF
 #SVAR_6_s_pcom.SIRF <- SVAR.sirf(SVAR, H)
@@ -1351,6 +1343,7 @@ SVAR
 
 Yb <- boot.rb.replicate(VAR, Yd0,  pmax, R)
 SVARS(SVAR_6_c_pcom, 3, 2)
+graficos(SVAR_6_c_pcom, 800, 800)
 
 #Reporte de resultados inciso 4 parte a2
 #(quiza podriamos hacer graficos mas lindos con ggplot)
