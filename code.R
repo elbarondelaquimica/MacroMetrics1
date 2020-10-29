@@ -478,7 +478,7 @@ SVAR.FEVD.boot_12 <- SVAR.fevd.boot(SVAR_12, Amat_12, Bmat_12, Yb_12, pmax, H, a
 plot.fevd.boot(SVAR.FEVD.boot_12, m = m_12, H)
 
 # ERPT (bootstrap)
-SVAR.ERPT.boot_12 <- SVAR.erpt.boot(SVAR_12, Amat_12, Bmat_12, Yb_12, pmax, H_ERPT, 3, 1, a, R, cumulative = TRUE) # DUDA: Acá puse el 4 en vez del 3 porque sino había un problema con las dimensiones y no estimaba, pero NO ESTOY muy seguro. No me termina de quedar claro qué representan estos argumentos (los números) en la función.
+SVAR.ERPT.boot_12 <- SVAR.erpt.boot(SVAR_12, Amat_12, Bmat_12, Yb_12, pmax, H_ERPT, 3, 2, a, R, cumulative = TRUE) # DUDA: Acá puse el 4 en vez del 3 porque sino había un problema con las dimensiones y no estimaba, pero NO ESTOY muy seguro. No me termina de quedar claro qué representan estos argumentos (los números) en la función.
 plot.erpt.boot(SVAR.ERPT.boot_12, H_ERPT)
 
 # Punto 12: segundo ordenamiento ####
