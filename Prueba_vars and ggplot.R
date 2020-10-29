@@ -31,6 +31,3 @@ grafico <- function(SVAR.ERPT.boot, H_ERPT){
   grafico
 }
 
-#Ejemplo con ej ejericio 12 y 120 períodos adelante:  
-grafico(SVAR.ERPT.boot_12, 120)  
-
