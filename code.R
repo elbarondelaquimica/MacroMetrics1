@@ -1716,6 +1716,11 @@ plot.erpt.boot(SVAR.ERPT.boot_10, H_ERPT)
 
 # Punto 11: primer ordenamiento ####
 # Definimos las nuevas variables, con ventana temporal enero2005-diciembre2019
+pcom_log <- log(pcom)
+er_log <- log(er)
+brecha_log <- log(dolar_ccl)-log(er)
+pc_log <- log(pc)
+
 Yl.f_11 <- cbind(er_log, brecha_log, pc_log) 
 Yd.f_11 <- 100 * diff(Yl.f_11) # Variables en log-differences
 Yl_11 <- window(Yl.f_11, start = c(2005, 01), end = c(2019, 12))
@@ -1870,7 +1875,24 @@ plot.erpt.boot(SVAR.ERPT.boot_12, H_ERPT)
 
 # Punto 12: segundo ordenamiento ####
 
-#Armamos vectores de variables
+#Armamos vectores de variables. Primero definimos:
+library(tstools) 
+dummy_cepo1 <- create_dummy_ts(end_basic = c(2019,12), dummy_start = c(2011,10), dummy_end =c(2015,12), sp= NULL, start_basic = c(2004, 01), frequency = 12)
+dummy_cepo2 <- create_dummy_ts(end_basic = c(2019,12), dummy_start = c(2019,09), dummy_end =c(2019,12), sp= NULL, start_basic = c(2004, 01), frequency = 12)
+
+#Creamos la variable de la brecha que toma valor 0 cuando no hay controles de capitales:
+brecha_con_cepo1 <- brecha_log*dummy_cepo1
+brecha_con_cepo1 <- window(brecha_con_cepo1, end = c(2019, 08))
+brecha_con_cepo2 <- brecha_log*dummy_cepo2
+brecha_con_cepo2 <- window(brecha_con_cepo2, start = c(2019, 09))
+brecha_con_cepo_log <- concat_ts(brecha_con_cepo1, brecha_con_cepo2)
+#Eliminamos variables intermedias:
+remove(brecha_con_cepo1, brecha_con_cepo2)
+#Volvemos a llamar al paquete, para evitar <<enmascaramientos>> con paquete ts
+library(vars)
+
+
+#Ahora sí, vectores
 Yl.f_12b <- cbind(pcom_log, brecha_con_cepo_log, er_log, pc_log) 
 Yd.f_12b <- 100 * diff(Yl.f_12b) # Variables en log-differences
 Yl_12b <- window(Yl.f_12b, start = c(2005, 01), end = c(2019, 12))
