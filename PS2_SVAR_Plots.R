@@ -1,15 +1,27 @@
 plot.sirf <- function(X, m, H) {
   for (i in 1:m) {
-    par(mfrow = c(m, 1))
-    for (j in 1:m) {
-      plot(0:H, X[i, j, ],
-           main = paste("Response of", dimnames(X)[[1]][i], "to", dimnames(X)[[2]][j], "shock", sep = " "),
+    par(mfrow = c(1, 1))
+      plot(0:H, X[i, 2, ],
+           main = paste("Response of", dimnames(X)[[1]][i], "to", dimnames(X)[[2]][2], "shock", sep = " "),
            xlab = "Horizon", ylab = "",
            type = "o", lwd = 2)
       grid(NULL, NULL, lty = 1)
-    }
   }
 }
+
+# plot.sirf <- function(X, m, H) {
+#   for (i in 1:m) {
+#     par(mfrow = c(m, 1))
+#     for (j in 1:m) {
+#       plot(0:H, X[i, j, ],
+#            main = paste("Response of", dimnames(X)[[1]][i], "to", dimnames(X)[[2]][j], "shock", sep = " "),
+#            xlab = "Horizon", ylab = "",
+#            type = "o", lwd = 2)
+#       grid(NULL, NULL, lty = 1)
+#     }
+#   }
+# }
+
 
 plot.fevd <- function(X, m, H) {
   par(mfrow = c(1, 1))
@@ -47,39 +59,75 @@ plot.erpt <- function(X, H) {
   grid(NULL, NULL, lty = 1)
 }
 
-plot.sirf.boot <- function(X, m, H) {
+plot.sirf.boot <- function(X, m, H, pos) {
+  par(mfrow = c(m, 2))
   for (i in 1:m) {
-    par(mfrow = c(m, 2))
-    for (j in 1:m) {
-      plot(0:H, X$pe[i, j, ],
-           main = paste("Response of", dimnames(X$pe)[[1]][i], "to", dimnames(X$pe)[[2]][j], "shock", sep = " "),
+      plot(0:H, X$pe[i, pos, ],
+           main = paste("Response of", dimnames(X$pe)[[1]][i], "to", dimnames(X$pe)[[2]][pos], "shock", sep = " "),
            xlab = "Horizon", ylab = "",
-           ylim = c(min(X$lb[i, j, ]), max(X$ub[i, j, ])),
+           ylim = c(min(X$lb[i, pos, ]), max(X$ub[i, pos, ])),
            type = "o", lwd = 2)
       grid(NULL, NULL, lty = 1)
       xx <- c(0:H, H:0)
-      yy <- c(c(X$lb[i, j, ]), rev(c(X$ub[i, j, ])))
+      yy <- c(c(X$lb[i, pos, ]), rev(c(X$ub[i, pos, ])))
       polygon(xx, yy, col = adjustcolor("grey", alpha.f = 0.5), border = NA)
-    }
+
   }
 }
 
-plot.fevd.boot <- function(X, m, H) {
-  for (i in 1:m) {
+
+# plot.sirf.boot <- function(X, m, H) {
+#   for (i in 1:m) {
+#     par(mfrow = c(m, 2))
+#     for (j in 1:m) {
+#       plot(0:H, X$pe[i, j, ],
+#            main = paste("Response of", dimnames(X$pe)[[1]][i], "to", dimnames(X$pe)[[2]][j], "shock", sep = " "),
+#            xlab = "Horizon", ylab = "",
+#            ylim = c(min(X$lb[i, j, ]), max(X$ub[i, j, ])),
+#            type = "o", lwd = 2)
+#       grid(NULL, NULL, lty = 1)
+#       xx <- c(0:H, H:0)
+#       yy <- c(c(X$lb[i, j, ]), rev(c(X$ub[i, j, ])))
+#       polygon(xx, yy, col = adjustcolor("grey", alpha.f = 0.5), border = NA)
+#     }
+#   }
+# }
+
+
+plot.fevd.boot <- function(X, m, H, pos) {
+
     par(mfrow = c(m, 2))
     for (j in 1:m) {
-      plot(0:H, X$pe[i, j, ],
-           main = paste("Contribution of", dimnames(X$pe)[[2]][j], "shock to variance of", dimnames(X$pe)[[1]][i], sep = " "),
+      plot(0:H, X$pe[pos, j, ],
+           main = paste("Contribution of", dimnames(X$pe)[[2]][j], "shock to variance of", dimnames(X$pe)[[1]][pos], sep = " "),
            xlab = "Horizon", ylab = "%",
            ylim = c(0, 100),
            type = "o", lwd = 2)
       grid(NULL, NULL, lty = 1)
       xx <- c(0:H, H:0)
-      yy <- c(c(X$lb[i, j, ]), rev(c(X$ub[i, j, ])))
+      yy <- c(c(X$lb[pos, j, ]), rev(c(X$ub[pos, j, ])))
       polygon(xx, yy, col = adjustcolor("grey", alpha.f = 0.5), border = NA)
     }
   }
-}
+
+
+# 
+# plot.fevd.boot <- function(X, m, H, pos) {
+#   for (i in 1:m) {
+#     par(mfrow = c(m, 2))
+#     for (j in 1:m) {
+#       plot(0:H, X$pe[i, j, ],
+#            main = paste("Contribution of", dimnames(X$pe)[[2]][j], "shock to variance of", dimnames(X$pe)[[1]][i], sep = " "),
+#            xlab = "Horizon", ylab = "%",
+#            ylim = c(0, 100),
+#            type = "o", lwd = 2)
+#       grid(NULL, NULL, lty = 1)
+#       xx <- c(0:H, H:0)
+#       yy <- c(c(X$lb[i, j, ]), rev(c(X$ub[i, j, ])))
+#       polygon(xx, yy, col = adjustcolor("grey", alpha.f = 0.5), border = NA)
+#     }
+#   }
+# }
 
 plot.erpt.boot <- function(X, H) {
   par(mfrow = c(1, 1))
