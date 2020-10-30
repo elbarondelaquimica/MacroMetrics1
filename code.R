@@ -1697,7 +1697,7 @@ plot.erpt(SVAR_10.ERPT, H_ERPT)
 
 # Replicación con bootstrap y gráfico final con bandas de confianza
 a <- 0.95 # Confidence level
-R <- 1000 # No. of bootstrap replications
+R <- 500 # No. of bootstrap replications
 Yb_10 <- boot.rb.replicate(VAR_10, Yd0_10, pmax, R)
 SVAR.SIRF.boot_10 <- SVAR.sirf.boot(SVAR_10, Amat_10, Bmat_10, Yb_10, pmax, H, a, R)
 plot.sirf.boot(SVAR.SIRF.boot_10, m = m_10, H)
@@ -1771,7 +1771,7 @@ SVAR_11 <- SVAR(VAR_11, Amat = Amat_11, Bmat = Bmat_11, lrtest = FALSE)
 m <- m_11
 N <- N_11 #Hay que redifinir para que funcione la función SVAR.hd
 a <- 0.95 # Confidence level
-R <- 1000 # No. of bootstrap replications
+R <- 500 # No. of bootstrap replications
 
 Yb_11 <- boot.rb.replicate(VAR_11, Yd0_11, pmax, R)
 SVAR.SIRF.boot_11 <- SVAR.sirf.boot(SVAR_11, Amat_11, Bmat_11, Yb_11, pmax, H, a, R)
@@ -1844,7 +1844,7 @@ SVAR_11b <- SVAR(VAR_11b, Amat = Amat_11b, Bmat = Bmat_11b, lrtest = FALSE)
 
 # Replicación con bootstrap y gráfico final con bandas de confianza
 a <- 0.95 # Confidence level
-R <- 1000 # No. of bootstrap replications
+R <- 500 # No. of bootstrap replications
 
 Yb_11b <- boot.rb.replicate(VAR_11b, Yd0_11b, pmax, R)
 N <- N_11b
@@ -1944,7 +1944,7 @@ SVAR_12b <- SVAR(VAR_12b, Amat = Amat_12b, Bmat = Bmat_12b, lrtest = FALSE)
 
 # Replicación con bootstrap y gráfico final con bandas de confianza
 a <- 0.95 # Confidence level
-R <- 1000 # No. of bootstrap replications
+R <- 500 # No. of bootstrap replications
 
 Yb_12b <- boot.rb.replicate(VAR_12b, Yd0_12b, pmax, R)
 N <- N_12b
