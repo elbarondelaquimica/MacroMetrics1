@@ -1,0 +1,489 @@
+remove(list = ls(all.names = TRUE))
+gc()
+
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+# 
+# SVARS_s_pcom <- function(name, v1, v2){
+#   source("PS2_SVAR_Bootstrap_sin_precios_int.R")
+#   assign(paste(deparse(substitute(name)), ".SIRF.boot", sep=""), SVAR.sirf.boot(name, Amat, Bmat, Yb, pmax, H, a, R), envir = .GlobalEnv)
+#   assign(paste(deparse(substitute(name)), ".SIRF.c.boot", sep=""), SVAR.sirf.boot(name, Amat, Bmat, Yb, pmax, H, a, R, cumulative = TRUE), envir = .GlobalEnv)
+#   assign(paste(deparse(substitute(name)), ".FEVD.boot", sep=""), SVAR.fevd.boot(name, Amat, Bmat, Yb, pmax, H, a, R), envir = .GlobalEnv)
+#   assign(paste(deparse(substitute(name)), ".ERPT.boot", sep=""), SVAR.erpt.boot(name, Amat, Bmat, Yb, pmax, H_ERPT, v1, v2, a, R, cumulative = TRUE), envir = .GlobalEnv)
+# }
+# 
+# SVARS<- function(name, v1, v2){
+#   source("PS2_SVAR_Bootstrap.R")
+#   assign(paste(deparse(substitute(name)), ".SIRF.boot", sep=""), SVAR.sirf.boot(name, Amat, Bmat, Yb, pmax, H, a, R), envir = .GlobalEnv)
+#   assign(paste(deparse(substitute(name)), ".SIRF.c.boot", sep=""), SVAR.sirf.boot(name, Amat, Bmat, Yb, pmax, H, a, R, cumulative = TRUE), envir = .GlobalEnv)
+#   assign(paste(deparse(substitute(name)), ".FEVD.boot", sep=""), SVAR.fevd.boot(name, Amat, Bmat, Yb, pmax, H, a, R), envir = .GlobalEnv)
+#   assign(paste(deparse(substitute(name)), ".ERPT.boot", sep=""), SVAR.erpt.boot(name, Amat, Bmat, Yb, pmax, H_ERPT, v1, v2, a, R, cumulative = TRUE), envir = .GlobalEnv)
+# }
+source("PS2_SVAR_Plots.R")
+source("PS2_SVAR_Analysis.R")
+source("PS2_SVAR_Bootstrap.R")
+source("Prueba_vars and ggplot.R")
+
+SVARS<- function(name, v1, v2){
+  source("PS2_SVAR_Analysis.R")
+  source("PS2_SVAR_Bootstrap.R")
+  assign(paste(deparse(substitute(name)), ".SIRF.boot", sep=""), SVAR.sirf.boot(name, Amat, Bmat, Yb, pmax, H, a, R), envir = .GlobalEnv)
+  assign(paste(deparse(substitute(name)), ".SIRF.c.boot", sep=""), SVAR.sirf.boot(name, Amat, Bmat, Yb, pmax, H, a, R, cumulative = TRUE), envir = .GlobalEnv)
+  assign(paste(deparse(substitute(name)), ".FEVD.boot", sep=""), SVAR.fevd.boot(name, Amat, Bmat, Yb, pmax, H, a, R), envir = .GlobalEnv)
+  assign(paste(deparse(substitute(name)), ".ERPT.boot", sep=""), SVAR.erpt.boot(name, Amat, Bmat, Yb, pmax, H_ERPT, v1, v2, a, R, cumulative = TRUE), envir = .GlobalEnv)
+  
+}
+
+SVARS_s_pcom<- function(name, v1, v2){
+  source("PS2_SVAR_Analysis.R")
+  source("PS2_SVAR_Bootstrap_sin_precios_int.R")
+  assign(paste(deparse(substitute(name)), ".SIRF.boot", sep=""), SVAR.sirf.boot(name, Amat, Bmat, Yb, pmax, H, a, R), envir = .GlobalEnv)
+  assign(paste(deparse(substitute(name)), ".SIRF.c.boot", sep=""), SVAR.sirf.boot(name, Amat, Bmat, Yb, pmax, H, a, R, cumulative = TRUE), envir = .GlobalEnv)
+  assign(paste(deparse(substitute(name)), ".FEVD.boot", sep=""), SVAR.fevd.boot(name, Amat, Bmat, Yb, pmax, H, a, R), envir = .GlobalEnv)
+  assign(paste(deparse(substitute(name)), ".ERPT.boot", sep=""), SVAR.erpt.boot(name, Amat, Bmat, Yb, pmax, H_ERPT, v1, v2, a, R, cumulative = TRUE), envir = .GlobalEnv)
+}
+
+graficos <- function(name, width, height){remove(list = ls(all.names = TRUE))}
+gc()
+
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+
+# 
+# SVARS_s_pcom <- function(name, v1, v2){
+#   source("PS2_SVAR_Bootstrap_sin_precios_int.R")
+#   assign(paste(deparse(substitute(name)), ".SIRF.boot", sep=""), SVAR.sirf.boot(name, Amat, Bmat, Yb, pmax, H, a, R), envir = .GlobalEnv)
+#   assign(paste(deparse(substitute(name)), ".SIRF.c.boot", sep=""), SVAR.sirf.boot(name, Amat, Bmat, Yb, pmax, H, a, R, cumulative = TRUE), envir = .GlobalEnv)
+#   assign(paste(deparse(substitute(name)), ".FEVD.boot", sep=""), SVAR.fevd.boot(name, Amat, Bmat, Yb, pmax, H, a, R), envir = .GlobalEnv)
+#   assign(paste(deparse(substitute(name)), ".ERPT.boot", sep=""), SVAR.erpt.boot(name, Amat, Bmat, Yb, pmax, H_ERPT, v1, v2, a, R, cumulative = TRUE), envir = .GlobalEnv)
+# }
+# 
+# SVARS<- function(name, v1, v2){
+#   source("PS2_SVAR_Bootstrap.R")
+#   assign(paste(deparse(substitute(name)), ".SIRF.boot", sep=""), SVAR.sirf.boot(name, Amat, Bmat, Yb, pmax, H, a, R), envir = .GlobalEnv)
+#   assign(paste(deparse(substitute(name)), ".SIRF.c.boot", sep=""), SVAR.sirf.boot(name, Amat, Bmat, Yb, pmax, H, a, R, cumulative = TRUE), envir = .GlobalEnv)
+#   assign(paste(deparse(substitute(name)), ".FEVD.boot", sep=""), SVAR.fevd.boot(name, Amat, Bmat, Yb, pmax, H, a, R), envir = .GlobalEnv)
+#   assign(paste(deparse(substitute(name)), ".ERPT.boot", sep=""), SVAR.erpt.boot(name, Amat, Bmat, Yb, pmax, H_ERPT, v1, v2, a, R, cumulative = TRUE), envir = .GlobalEnv)
+# }
+source("PS2_SVAR_Plots.R")
+source("PS2_SVAR_Analysis.R")
+source("PS2_SVAR_Bootstrap.R")
+source("Prueba_vars and ggplot.R")
+
+SVARS<- function(name, v1, v2){
+  source("PS2_SVAR_Analysis.R")
+  source("PS2_SVAR_Bootstrap.R")
+  assign(paste(deparse(substitute(name)), ".SIRF.boot", sep=""), SVAR.sirf.boot(name, Amat, Bmat, Yb, pmax, H, a, R), envir = .GlobalEnv)
+  assign(paste(deparse(substitute(name)), ".SIRF.c.boot", sep=""), SVAR.sirf.boot(name, Amat, Bmat, Yb, pmax, H, a, R, cumulative = TRUE), envir = .GlobalEnv)
+  assign(paste(deparse(substitute(name)), ".FEVD.boot", sep=""), SVAR.fevd.boot(name, Amat, Bmat, Yb, pmax, H, a, R), envir = .GlobalEnv)
+  assign(paste(deparse(substitute(name)), ".ERPT.boot", sep=""), SVAR.erpt.boot(name, Amat, Bmat, Yb, pmax, H_ERPT, v1, v2, a, R, cumulative = TRUE), envir = .GlobalEnv)
+  
+}
+
+SVARS_s_pcom<- function(name, v1, v2){
+  source("PS2_SVAR_Analysis.R")
+  source("PS2_SVAR_Bootstrap_sin_precios_int.R")
+  assign(paste(deparse(substitute(name)), ".SIRF.boot", sep=""), SVAR.sirf.boot(name, Amat, Bmat, Yb, pmax, H, a, R), envir = .GlobalEnv)
+  assign(paste(deparse(substitute(name)), ".SIRF.c.boot", sep=""), SVAR.sirf.boot(name, Amat, Bmat, Yb, pmax, H, a, R, cumulative = TRUE), envir = .GlobalEnv)
+  assign(paste(deparse(substitute(name)), ".FEVD.boot", sep=""), SVAR.fevd.boot(name, Amat, Bmat, Yb, pmax, H, a, R), envir = .GlobalEnv)
+  assign(paste(deparse(substitute(name)), ".ERPT.boot", sep=""), SVAR.erpt.boot(name, Amat, Bmat, Yb, pmax, H_ERPT, v1, v2, a, R, cumulative = TRUE), envir = .GlobalEnv)
+}
+
+graficos <- function(name, width, height, pos){
+  
+  png(file= paste(deparse(substitute(name)), ".SIRF.boot", ".png", sep=""),  width= width, height= height)
+  plot1 <- plot.sirf.boot(eval(as.name(paste(deparse(substitute(name)), ".SIRF.boot", sep=""))), m, H, pos)
+  print(plot1)
+  dev.off()
+  
+  
+  png(file=paste(deparse(substitute(name)), ".SIRF.c.boot", ".png", sep=""), width= width, height= height)
+  plot2 <- plot.sirf.boot(eval(as.name(paste(deparse(substitute(name)), ".SIRF.c.boot", sep=""))), m, H, pos)
+  print(plot2)
+  dev.off()
+  
+  png(file=paste(deparse(substitute(name)), ".FEVD.boot", ".png", sep=""), width= width, height= height)
+  plot3 <- plot.fevd.boot(eval(as.name(paste(deparse(substitute(name)), ".FEVD.boot", sep=""))), m, H)
+  print(plot3)
+  dev.off()
+  
+  png(file=paste(deparse(substitute(name)), ".ERPT.boot", ".png", sep=""),  width=800, height=600)
+  plot4 <- grafico(eval(as.name(paste(deparse(substitute(name)), ".ERPT.boot", sep=""))), H_ERPT)
+  print(plot4)
+  dev.off()
+  return (list(plot1, plot2, plot3, plot4))
+}
+
+
+
+# Data ####
+
+source("PS1_Data.R")
+
+Yl.f <- cbind(pcom, er, pc) # Raw data in log
+Yl.f <- log(Yl.f) # log transformation
+Yd.f <- 100 * diff(Yl.f) # Raw data in log-differences
+
+#Seleccionamos la ventana temporal. Enero de 2005 a Diciembre de 2019.
+Yl <- window(Yl.f, start = c(2005, 01), end = c(2019, 12))
+Yd <- window(Yd.f, start = c(2005, 01), end = c(2019, 12))
+
+
+# Inciso 1 y definiciones ####
+
+library(vars)
+matC <- function(m, p, vx) {
+  vy <- setdiff(1:m, vx)
+  Cm <- matrix(1, m, m * p + 1)
+  for (i in vx) {
+    for (l in 1:p) {
+      for (j in vy) {
+        Cm[i, m * (l - 1) + j] <- 0
+      }
+    }
+  }
+  return(Cm)
+}
+H <- 18 # Horizon
+H_ERPT <- 120 # Horizon for ERPT
+a <- 0.95 # Confidence level
+R <- 500 # No. of bootstrap replications
+pmax <- 12 # Lag order selection
+
+# Punto 10 ####
+
+# Definimos las nuevas variables, con ventana temporal enero2005-diciembre2019
+#Descargamos los valores de la fuente, tomando el promedio mensual:
+dolar_ccl <- read.csv(url("https://apis.datos.gob.ar/series/api/series/?collapse=month&collapse_aggregation=avg&ids=168.1_T_CAMBIDRS_D_0_0_29&limit=5000&format=csv"))
+
+#Construimos la serie y la restringimos
+dolar_ccl <- ts(dolar_ccl$tipo_cambio_implicito_en_adrs, start = c(2002, 04), frequency = 12)
+dolar_ccl <- window(dolar_ccl, start = c(2004, 01), end = c(2019, 12))
+Yl.f_10 <- cbind(dolar_ccl, pc) # Variables en log
+Yl.f_10 <- log(Yl.f_10) # log transformation
+Yd.f_10 <- 100 * diff(Yl.f_10) # Variables en log-differences
+Yl_10 <- window(Yl.f_10, start = c(2005, 01), end = c(2019, 12))
+Yd_10 <- window(Yd.f_10, start = c(2005, 01), end = c(2019, 12))
+
+
+# Volvemos a llamar al paquete, para evitar <<enmascaramiento>> del paquete ts:
+library(vars)
+
+# Lag order selection
+
+popt_10 <- VARselect(Yd_10, lag.max = pmax, type = "const")
+popt_10
+p_10 <- popt_10$selection[1] # AIC
+
+# Valores iniciales
+Yd0_10 <- Yd_10[1:pmax, ] # Initial values
+Ydt_10 <- Yd_10[(pmax - p_10 + 1):nrow(Yd_10), ] 
+
+# Estimation
+VAR_10 <- VAR(Ydt_10, p = p_10, type = "const")
+
+# Control
+m_10 <- VAR_10$K # No. of variables in the VAR
+N_10 <- VAR_10$obs
+roots(VAR_10, modulus = TRUE)
+serial.test(VAR_10, lags.bg = 2, type = "ES") 
+
+# Re-estimación con restricciones:
+# Re-estimate VAR (no feedback from local vars. to pcom)
+VAR_10 <- restrict(VAR_10, method = "man", resmat = matC(m_10, p_10, 1))
+VAR_10
+
+# SVAR estimation
+
+# A Matrix
+Amat_10 <- diag(m_10)
+for (i in 2:m_10) {
+  for (j in 1:(i - 1)) {
+    Amat_10[i, j] <- NA
+  }
+}
+
+# B Matrix
+#esta representa a omega (en el caso en el que no normalizamos el desvio de los errores a 1)
+Bmat_10 <- matrix(0, m_10, m_10)
+for (i in 1:m_10) {
+  Bmat_10[i, i] <- NA
+}
+
+# SVAR estimation (AB model configuration)
+SVAR_10 <- SVAR(VAR_10, Amat = Amat_10, Bmat = Bmat_10, lrtest = FALSE)
+
+
+#Punto 10: resultados ####
+a <- 0.95
+R <- 500
+Yb_10 <- boot.rb.replicate(VAR_10, Yd0_10, pmax, R)
+Yb <- Yb_10
+m <- m_10
+Amat <- Amat_10
+Bmat <- Bmat_10
+SVARS_s_pcom(SVAR_10, 2, 1)
+graficos(SVAR_10, 800, 500)
+
+# Punto 11: primer ordenamiento ####
+# Definimos las nuevas variables, con ventana temporal enero2005-diciembre2019
+er_log <- log(er)
+brecha_log <- log(dolar_ccl)-log(er)
+pc_log <- log(pc)
+Yl.f_11 <- cbind(er_log, brecha_log, pc_log) 
+Yd.f_11 <- 100 * diff(Yl.f_11) # Variables en log-differences
+Yl_11 <- window(Yl.f_11, start = c(2005, 01), end = c(2019, 12))
+Yd_11 <- window(Yd.f_11, start = c(2005, 01), end = c(2019, 12))
+
+# Volvemos a llamar al paquete, para evitar <<enmascaramiento>> del paquete ts:
+library(vars)
+
+# Lag order selection
+popt_11 <- VARselect(Yd_11, lag.max = pmax, type = "const")
+popt_11
+p_11 <- popt_11$selection[1] # AIC
+
+# Valores iniciales
+Yd0_11 <- Yd_11[1:pmax, ] # Initial values
+Ydt_11 <- Yd_11[(pmax - p_11 + 1):nrow(Yd_11), ] 
+
+# Estimation
+VAR_11 <- VAR(Ydt_11, p = p_11, type = "const")
+
+# Control
+m_11 <- VAR_11$K # No. of variables in the VAR
+N_11 <- VAR_11$obs
+roots(VAR_11, modulus = TRUE)
+serial.test(VAR_11, lags.bg = 3, type = "ES")
+
+# SVAR estimation
+
+# A Matrix
+Amat_11 <- diag(m_11)
+for (i in 2:m_11) {
+  for (j in 1:(i - 1)) {
+    Amat_11[i, j] <- NA
+  }
+}
+
+# B Matrix
+#esta representa a omega (en el caso en el que no normalizamos el desvio de los errores a 1)
+Bmat_11 <- matrix(0, m_11, m_11)
+for (i in 1:m_11) {
+  Bmat_11[i, i] <- NA
+}
+
+# SVAR estimation (AB model configuration)
+SVAR_11 <- SVAR(VAR_11, Amat = Amat_11, Bmat = Bmat_11, lrtest = FALSE)
+
+#Punto 11, primer ordenamiento: resultados ####
+N <- N_11 
+a <- 0.95 # Confidence level
+R <- 500 # No. of bootstrap replications
+Y0 <- Yd0_11
+Amat <-Amat_11
+Bmat <- Bmat_11
+Yb_11 <- boot.rb.replicate(VAR_11, Yd0_11, pmax, R)
+Yb <- Yb_11
+m <- m_11
+SVARS_s_pcom(SVAR_11, 3, 1)
+graficos(SVAR_11, 800, 500)
+
+
+# Punto 11: segundo ordenamiento ####
+# Definimos las nuevas variables, con ventana temporal enero2005-diciembre2019
+Yl.f_11b <- cbind(brecha_log, er_log, pc_log) 
+Yd.f_11b <- 100 * diff(Yl.f_11b) # Variables en log-differences
+Yl_11b <- window(Yl.f_11b, start = c(2005, 01), end = c(2019, 12))
+Yd_11b <- window(Yd.f_11b, start = c(2005, 01), end = c(2019, 12))
+
+# Volvemos a llamar al paquete, para evitar <<enmascaramiento>> del paquete ts:
+library(vars)
+
+# Lag order selection
+popt_11b <- VARselect(Yd_11b, lag.max = pmax, type = "const")
+popt_11b
+p_11b <- popt_11b$selection[1] # AIC
+
+# Valores iniciales
+Yd0_11b <- Yd_11b[1:pmax, ] # Initial values
+Ydt_11b <- Yd_11b[(pmax - p_11b + 1):nrow(Yd_11b), ] 
+
+# Estimation
+VAR_11b <- VAR(Ydt_11b, p = p_11b, type = "const")
+
+# Control
+m_11b <- VAR_11b$K # No. of variables in the VAR
+N_11b <- VAR_11b$obs
+roots(VAR_11b, modulus = TRUE)
+serial.test(VAR_11b, lags.bg = 3, type = "ES")
+
+# SVAR estimation
+
+# A Matrix
+Amat_11b <- diag(m_11b)
+for (i in 2:m_11b) {
+  for (j in 1:(i - 1)) {
+    Amat_11b[i, j] <- NA
+  }
+}
+
+# B Matrix
+#esta representa a omega (en el caso en el que no normalizamos el desvio de los errores a 1)
+Bmat_11b <- matrix(0, m_11b, m_11b)
+for (i in 1:m_11b) {
+  Bmat_11b[i, i] <- NA
+}
+
+# SVAR estimation (AB model configuration)
+SVAR_11b <- SVAR(VAR_11b, Amat = Amat_11b, Bmat = Bmat_11b, lrtest = FALSE)
+
+# Punto 11, segundo ordenamiento: resultados ####
+a <- 0.95 # Confidence level
+R <- 500 # No. of bootstrap replications
+Yb_11b <- boot.rb.replicate(VAR_11b, Yd0_11b, pmax, R)
+N <- N_11b
+m <- m_11b
+Yb <- Yb_11b
+m <- m_11
+Amat <- Amat_11b
+Bmat <- Bmat_11b
+SVARS_s_pcom(SVAR_11b, 3, 2)
+graficos(SVAR_11b, 800, 500)
+
+
+
+#Punto 12: primer ordenamiento ####
+#Tomamos como períodos con controles de capitales al período octubre 2011-diciembre2015 y desde septiembre 2019.
+#Fuentes: AFIP con la Resolución General 3210 y la Resolución General 3819 , Poder Ejecutivo Nacional con DNU 19/609
+#Variables dummies:
+library(tstools) 
+dummy_cepo1 <- create_dummy_ts(end_basic = c(2019,12), dummy_start = c(2011,10), dummy_end =c(2015,12), sp= NULL, start_basic = c(2004, 01), frequency = 12)
+dummy_cepo2 <- create_dummy_ts(end_basic = c(2019,12), dummy_start = c(2019,09), dummy_end =c(2019,12), sp= NULL, start_basic = c(2004, 01), frequency = 12)
+
+#Creamos la variable de la brecha que toma valor 0 cuando no hay controles de capitales:
+brecha_con_cepo1 <- brecha_log*dummy_cepo1
+brecha_con_cepo1 <- window(brecha_con_cepo1, end = c(2019, 08))
+brecha_con_cepo2 <- brecha_log*dummy_cepo2
+brecha_con_cepo2 <- window(brecha_con_cepo2, start = c(2019, 09))
+brecha_con_cepo_log <- concat_ts(brecha_con_cepo1, brecha_con_cepo2)
+#Eliminamos variables intermedias:
+remove(brecha_con_cepo1, brecha_con_cepo2)
+#Volvemos a llamar al paquete, para evitar <<enmascaramientos>> con paquete ts
+library(vars)
+
+
+#Variables
+Yl.f_12 <- cbind(er_log, brecha_con_cepo_log, pc_log) 
+Yd.f_12 <- 100 * diff(Yl.f_12) # Variables en log-differences
+Yl_12 <- window(Yl.f_12, start = c(2005, 01), end = c(2019, 12))
+Yd_12 <- window(Yd.f_12, start = c(2005, 01), end = c(2019, 12))
+
+# Comenzamos análisis VAR
+popt_12 <- VARselect(Yd_12, lag.max = pmax, type = "const")
+popt_12
+p_12 <- popt_12$selection[1] # AIC
+
+# Valores iniciales
+Yd0_12 <- Yd_12[1:pmax, ] # Initial values
+Ydt_12 <- Yd_12[(pmax - p_12 + 1):nrow(Yd_12), ] 
+
+# Estimation
+VAR_12 <- VAR(Ydt_12, p = p_12, type = "const")
+
+# Control
+m_12 <- VAR_12$K # No. of variables in the VAR
+N_12 <- VAR_12$obs
+roots(VAR_12, modulus = TRUE)
+serial.test(VAR_12, lags.bg = 3, type = "ES")
+
+# SVAR estimation
+
+# A Matrix
+Amat_12 <- diag(m_12)
+for (i in 2:m_12) {
+  for (j in 1:(i - 1)) {
+    Amat_12[i, j] <- NA
+  }
+}
+
+# B Matrix
+#esta representa a omega (en el caso en el que no normalizamos el desvio de los errores a 1)
+Bmat_12 <- matrix(0, m_12, m_12)
+for (i in 1:m_12) {
+  Bmat_12[i, i] <- NA
+}
+
+# SVAR estimation (AB model configuration)
+SVAR_12 <- SVAR(VAR_12, Amat = Amat_12, Bmat = Bmat_12, lrtest = FALSE)
+
+# Punto 12, primer ordenamiento: resultados ####
+a <- 0.95 # Confidence level
+R <- 500 # No. of bootstrap replications
+Yb_12 <- boot.rb.replicate(VAR_12, Yd0_12, pmax, R)
+N <- N_12
+m <- m_12
+Yb <- Yb_12
+Amat <- Amat_12
+Bmat <- Bmat_12
+m <- m_12
+SVARS_s_pcom(SVAR_12, 3, 1)
+graficos(SVAR_12, 800, 500)
+
+# Punto 12: segundo ordenamiento ####
+
+#Armamos vectores de variables
+#Variables
+Yl.f_12b <- cbind(brecha_con_cepo_log, er_log, pc_log) 
+Yd.f_12b <- 100 * diff(Yl.f_12b) # Variables en log-differences
+Yl_12b <- window(Yl.f_12b, start = c(2005, 01), end = c(2019, 12))
+Yd_12b <- window(Yd.f_12b, start = c(2005, 01), end = c(2019, 12))
+
+# Comenzamos análisis VAR
+popt_12b <- VARselect(Yd_12b, lag.max = pmax, type = "const")
+popt_12b
+p_12b <- popt_12b$selection[1] # AIC
+
+# Valores iniciales
+Yd0_12b <- Yd_12b[1:pmax, ] # Initial values
+Ydt_12b <- Yd_12b[(pmax - p_12b + 1):nrow(Yd_12b), ] 
+
+# Estimation
+VAR_12b <- VAR(Ydt_12b, p = p_12b, type = "const")
+
+# Control
+m_12b <- VAR_12b$K # No. of variables in the VAR
+N_12b <- VAR_12b$obs
+roots(VAR_12b, modulus = TRUE)
+serial.test(VAR_12b, lags.bg = 3, type = "ES")
+
+# SVAR estimation
+
+# A Matrix
+Amat_12b <- diag(m_12b)
+for (i in 2:m_12b) {
+  for (j in 1:(i - 1)) {
+    Amat_12b[i, j] <- NA
+  }
+}
+
+# B Matrix
+#esta representa a omega (en el caso en el que no normalizamos el desvio de los errores a 1)
+Bmat_12b <- matrix(0, m_12b, m_12b)
+for (i in 1:m_12) {
+  Bmat_12b[i, i] <- NA
+}
+
+# SVAR estimation (AB model configuration)
+SVAR_12b <- SVAR(VAR_12b, Amat = Amat_12b, Bmat = Bmat_12b, lrtest = FALSE)
+
+# Punto 12, segundo ordenamiento: resultados ####
+a <- 0.95 # Confidence level
+R <- 500 # No. of bootstrap replications
+Yb_12b <- boot.rb.replicate(VAR_12b, Yd0_12b, pmax, R)
+N <- N_12b
+m <- m_12b
+Yb <- Yb_12b
+Amat <- Amat_12b
+Bmat <- Bmat_12b
+m <- m_12b
+SVARS_s_pcom(SVAR_12b, 3, 2)
+graficos(SVAR_12b, 800, 500)
