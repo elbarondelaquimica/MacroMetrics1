@@ -1714,6 +1714,76 @@ plot.fevd.boot(SVAR.FEVD.boot_10, m = m_10, H)
 SVAR.ERPT.boot_10 <- SVAR.erpt.boot(SVAR_10, Amat_10, Bmat_10, Yb_10, pmax, H_ERPT, 3, 2, a, R, cumulative = TRUE)
 plot.erpt.boot(SVAR.ERPT.boot_10, H_ERPT)
 
+# Punto 11: primer ordenamiento ####
+# Definimos las nuevas variables, con ventana temporal enero2005-diciembre2019
+Yl.f_11 <- cbind(er_log, brecha_log, pc_log) 
+Yd.f_11 <- 100 * diff(Yl.f_11) # Variables en log-differences
+Yl_11 <- window(Yl.f_11, start = c(2005, 01), end = c(2019, 12))
+Yd_11 <- window(Yd.f_11, start = c(2005, 01), end = c(2019, 12))
+
+# Volvemos a llamar al paquete, para evitar <<enmascaramiento>> del paquete ts:
+library(vars)
+
+# Lag order selection
+popt_11 <- VARselect(Yd_11, lag.max = pmax, type = "const")
+popt_11
+p_11 <- popt_11$selection[1] # AIC
+
+# Valores iniciales
+Yd0_11 <- Yd_11[1:pmax, ] # Initial values
+Ydt_11 <- Yd_11[(pmax - p_11 + 1):nrow(Yd_11), ] 
+
+# Estimation
+VAR_11 <- VAR(Ydt_11, p = p_11, type = "const")
+
+# Control
+m_11 <- VAR_11$K # No. of variables in the VAR
+N_11 <- VAR_11$obs
+roots(VAR_11, modulus = TRUE)
+serial.test(VAR_11, lags.bg = 3, type = "ES")
+
+# SVAR estimation
+
+# A Matrix
+Amat_11 <- diag(m_11)
+for (i in 2:m_11) {
+  for (j in 1:(i - 1)) {
+    Amat_11[i, j] <- NA
+  }
+}
+
+# B Matrix
+#esta representa a omega (en el caso en el que no normalizamos el desvio de los errores a 1)
+Bmat_11 <- matrix(0, m_11, m_11)
+for (i in 1:m_11) {
+  Bmat_11[i, i] <- NA
+}
+
+# SVAR estimation (AB model configuration)
+SVAR_11 <- SVAR(VAR_11, Amat = Amat_11, Bmat = Bmat_11, lrtest = FALSE)
+
+# Reportamos los resultados del modelo
+m <- m_11
+N <- N_11 #Hay que redifinir para que funcione la función SVAR.hd
+a <- 0.95 # Confidence level
+R <- 1000 # No. of bootstrap replications
+
+Yb_11 <- boot.rb.replicate(VAR_11, Yd0_11, pmax, R)
+SVAR.SIRF.boot_11 <- SVAR.sirf.boot(SVAR_11, Amat_11, Bmat_11, Yb_11, pmax, H, a, R)
+plot.sirf.boot(SVAR.SIRF.boot_11, m = m_11, H)
+
+# Cumulative IRF (bootstrap)
+SVAR.SIRF.c.boot_11 <- SVAR.sirf.boot(SVAR_11, Amat_11, Bmat_11, Yb_11, pmax, H, a, R, cumulative = TRUE)
+plot.sirf.boot(SVAR.SIRF.c.boot_11, m = m_11 , H)
+
+# FEVD (bootstrap)
+SVAR.FEVD.boot_11 <- SVAR.fevd.boot(SVAR_11, Amat_11, Bmat_11, Yb_11, pmax, H, a, R)
+plot.fevd.boot(SVAR.FEVD.boot_11, m = m_11, H)
+
+# ERPT (bootstrap)
+SVAR.ERPT.boot_11 <- SVAR.erpt.boot(SVAR_11, Amat_11, Bmat_11, Yb_11, pmax, H_ERPT, 3, 1, a, R, cumulative = TRUE)
+plot.erpt.boot(SVAR.ERPT.boot_11, H_ERPT)
+
 
 #Punto 11: segundo ordenamiento ####
 
