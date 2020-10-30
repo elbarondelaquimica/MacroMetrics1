@@ -1630,7 +1630,7 @@ library(vars)
 
 # Lag order selection
 
-SVAR_10popt_10 <- VARselect(Yd_10, lag.max = pmax, type = "const")
+popt_10 <- VARselect(Yd_10, lag.max = pmax, type = "const")
 popt_10
 p_10 <- popt_10$selection[1] # AIC
 
