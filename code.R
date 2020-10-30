@@ -791,14 +791,16 @@ graficos(SVAR_3_s3_s_pcom, 800, 800, 1, 2)
 #Por la misma razón tomo desde agosto de 2012 en lugar de desde julio.
 
 
-
-
 pmax <- 11
-Yd_4 <- window(Yd.f, start = c(2012, 08), end = c(2019, 12))
+pcom <- window(pcom, start = c(2012, 08), end = c(2019, 12))
+Y <- window(Yd.f, start = c(2012, 08), end = c(2019, 12))
+Yd_4 <- cbind(pcom, Y)
 Yd_4_s_pcom <- Yd_4[, 2:3]
 popt_4_s_pcom <- VARselect(Yd_4_s_pcom, lag.max = pmax, type = "const")
 popt_4_s_pcom
 p_4_s_pcom <- popt_4_s_pcom$selection[1] # AIC
+
+p_4_s_pcom <- 5
 
 Yd0_4_s_pcom <- Yd_4_s_pcom[1:pmax, ] # Initial values
 Ydt_4_s_pcom <- Yd_4_s_pcom[(pmax - p_4_s_pcom + 1):nrow(Yd_4_s_pcom), ]
@@ -845,7 +847,7 @@ R <- 500 # No. of bootstrap replications
 Yb <- boot.rb.replicate(VAR_4_s_pcom, Yd0_4_s_pcom,  pmax, R)
 
 SVARS_s_pcom(SVAR_4_s_pcom, 2, 1)
-graficos(SVAR_4_s_pcom, 800, 800, 1)
+graficos(SVAR_4_s_pcom, 800, 800, 1, 2)
 # 
 # # IRF (bootstrap)
 # #SVAR_4_s_pcom.SIRF.boot <- SVAR.sirf.boot(SVAR_4_s_pcom, Amat, Bmat, Yb, pmax, H, a, R)
@@ -936,7 +938,7 @@ SVAR
 Yb <- boot.rb.replicate(VAR_4_c_pcom, Yd0_4_c_pcom,  pmax, R)
 source("PS2_SVAR_Bootstrap.R")
 SVARS(SVAR_4_c_pcom, 3, 2)
-graficos(SVAR_4_c_pcom, 800, 800, 2)
+graficos(SVAR_4_c_pcom, 800, 800, 2, 3)
 
 # 
 # # IRF (bootstrap)
@@ -995,6 +997,9 @@ popt_4_s_pcom <- VARselect(Yd_caba_s_com, lag.max = pmax, type = "const")
 popt_4_s_pcom
 p_4_s_pcom <- popt_4_s_pcom$selection[1] # AIC
 
+#Escogemos 4 ya que 2 de los criterios indican esto, y usar el AIC da resultados muy extraños.
+p_4_s_pcom <- 4
+
 Yd0_4_s_pcom <- Yd_caba_s_com [1:pmax, ] # Initial values
 Ydt_4_s_pcom <- Yd_caba_s_com [(pmax - p_4_s_pcom + 1):nrow(Yd_4_s_pcom), ]
 
@@ -1033,7 +1038,7 @@ SVAR <- SVAR_4_s_pcom_caba
 Yb <- boot.rb.replicate(VAR_4_s_pcom, Yd0_4_s_pcom,  pmax, R)
 source("PS2_SVAR_Bootstrap_sin_precios_int.R")
 SVARS_s_pcom(SVAR_4_s_pcom_caba, 2, 1)
-graficos(SVAR_4_s_pcom_caba, 800, 800, 1)
+graficos(SVAR_4_s_pcom_caba, 800, 800, 1, 2)
 
 # IRF (bootstrap)
 # 
@@ -1135,7 +1140,7 @@ SVAR_4_c_pcom_caba <- SVAR(VAR_4_c_pcom, Amat = Amat, Bmat = Bmat, lrtest = FALS
 Yb <- boot.rb.replicate(VAR_4_c_pcom, Yd0_4_c_pcom,  pmax, R)
 
 SVARS(SVAR_4_c_pcom_caba, 3, 2)
-graficos(SVAR_4_c_pcom_caba, 800, 800, 2)
+graficos(SVAR_4_c_pcom_caba, 800, 800, 2, 3)
 #Reporte de resultados inciso 4 parte a2
 #(quiza podriamos hacer graficos mas lindos con ggplot)
 # 
