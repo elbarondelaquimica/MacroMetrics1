@@ -197,17 +197,26 @@ plot.erpt(SVAR_2.ERPT, H_ERPT)
 
 
 # Punto 10 ####
+
 # Definimos las nuevas variables, con ventana temporal enero2005-diciembre2019
+#Descargamos los valores de la fuente, tomando el promedio mensual:
+dolar_ccl <- read.csv(url("https://apis.datos.gob.ar/series/api/series/?collapse=month&collapse_aggregation=avg&ids=168.1_T_CAMBIDRS_D_0_0_29&limit=5000&format=csv"))
+
+#Construimos la serie y la restringimos
+dolar_ccl <- ts(dolar_ccl$tipo_cambio_implicito_en_adrs, start = c(2002, 04), frequency = 12)
+dolar_ccl <- window(dolar_ccl, start = c(2004, 01), end = c(2019, 12))
 Yl.f_10 <- cbind(dolar_ccl, pc) # Variables en log
 Yl.f_10 <- log(Yl.f_10) # log transformation
 Yd.f_10 <- 100 * diff(Yl.f_10) # Variables en log-differences
 Yl_10 <- window(Yl.f_10, start = c(2005, 01), end = c(2019, 12))
 Yd_10 <- window(Yd.f_10, start = c(2005, 01), end = c(2019, 12))
 
+
 # Volvemos a llamar al paquete, para evitar <<enmascaramiento>> del paquete ts:
 library(vars)
 
 # Lag order selection
+
 popt_10 <- VARselect(Yd_10, lag.max = pmax, type = "const")
 popt_10
 p_10 <- popt_10$selection[1] # AIC
@@ -223,7 +232,12 @@ VAR_10 <- VAR(Ydt_10, p = p_10, type = "const")
 m_10 <- VAR_10$K # No. of variables in the VAR
 N_10 <- VAR_10$obs
 roots(VAR_10, modulus = TRUE)
-serial.test(VAR_10, lags.bg = 2, type = "ES")
+serial.test(VAR_10, lags.bg = 2, type = "ES") 
+
+# Re-estimación con restricciones:
+# Re-estimate VAR (no feedback from local vars. to pcom)
+VAR_10 <- restrict(VAR_10, method = "man", resmat = matC(m_10, p_10, 1))
+VAR_10
 
 # SVAR estimation
 
@@ -245,31 +259,23 @@ for (i in 1:m_10) {
 # SVAR estimation (AB model configuration)
 SVAR_10 <- SVAR(VAR_10, Amat = Amat_10, Bmat = Bmat_10, lrtest = FALSE)
 
-# Reportamos los resultados del modelo
-m <- m_10
-N <- N_10 #Hay que redifinir para que funcione la función SVAR.hd
-a <- 0.95 # Confidence level
-R <- 1000 # No. of bootstrap replications
 
+#Punto 10: resultados ####
+a <- 0.95
+R <- 500
 Yb_10 <- boot.rb.replicate(VAR_10, Yd0_10, pmax, R)
-SVAR.SIRF.boot_10 <- SVAR.sirf.boot(SVAR_10, Amat_10, Bmat_10, Yb_10, pmax, H, a, R)
-plot.sirf.boot(SVAR.SIRF.boot_10, m = m_10, H)
-
-# Cumulative IRF (bootstrap)
-SVAR.SIRF.c.boot_10 <- SVAR.sirf.boot(SVAR_10, Amat_10, Bmat_10, Yb_10, pmax, H, a, R, cumulative = TRUE)
-plot.sirf.boot(SVAR.SIRF.c.boot_10, m = m_10 , H)
-
-# FEVD (bootstrap)
-SVAR.FEVD.boot_10 <- SVAR.fevd.boot(SVAR_10, Amat_10, Bmat_10, Yb_10, pmax, H, a, R)
-plot.fevd.boot(SVAR.FEVD.boot_10, m = m_10, H)
-
-# ERPT (bootstrap)
-SVAR.ERPT.boot_10 <- SVAR.erpt.boot(SVAR_10, Amat_10, Bmat_10, Yb_10, pmax, H_ERPT, 2, 1, a, R, cumulative = TRUE)
-plot.erpt.boot(SVAR.ERPT.boot_10, H_ERPT)
-
+Yb <- Yb_10
+m <- m_10
+Amat <- Amat_10
+Bmat <- Bmat_10
+SVARS(SVAR_10, 2, 1)
+graficos(SVAR_10, 800, 800)
 
 # Punto 11: primer ordenamiento ####
 # Definimos las nuevas variables, con ventana temporal enero2005-diciembre2019
+er_log <- log(er)
+brecha_log <- log(dolar_ccl)-log(er)
+pc_log <- log(pc)
 Yl.f_11 <- cbind(er_log, brecha_log, pc_log) 
 Yd.f_11 <- 100 * diff(Yl.f_11) # Variables en log-differences
 Yl_11 <- window(Yl.f_11, start = c(2005, 01), end = c(2019, 12))
@@ -316,27 +322,18 @@ for (i in 1:m_11) {
 # SVAR estimation (AB model configuration)
 SVAR_11 <- SVAR(VAR_11, Amat = Amat_11, Bmat = Bmat_11, lrtest = FALSE)
 
-# Reportamos los resultados del modelo
-m <- m_11
-N <- N_11 #Hay que redifinir para que funcione la función SVAR.hd
+#Punto 11, primer ordenamiento: resultados ####
+N <- N_11 
 a <- 0.95 # Confidence level
-R <- 1000 # No. of bootstrap replications
-
+R <- 500 # No. of bootstrap replications
+Y0 <- Yd0_11
+Amat <-Amat_11
+Bmat <- Bmat_11
 Yb_11 <- boot.rb.replicate(VAR_11, Yd0_11, pmax, R)
-SVAR.SIRF.boot_11 <- SVAR.sirf.boot(SVAR_11, Amat_11, Bmat_11, Yb_11, pmax, H, a, R)
-plot.sirf.boot(SVAR.SIRF.boot_11, m = m_11, H)
-
-# Cumulative IRF (bootstrap)
-SVAR.SIRF.c.boot_11 <- SVAR.sirf.boot(SVAR_11, Amat_11, Bmat_11, Yb_11, pmax, H, a, R, cumulative = TRUE)
-plot.sirf.boot(SVAR.SIRF.c.boot_11, m = m_11 , H)
-
-# FEVD (bootstrap)
-SVAR.FEVD.boot_11 <- SVAR.fevd.boot(SVAR_11, Amat_11, Bmat_11, Yb_11, pmax, H, a, R)
-plot.fevd.boot(SVAR.FEVD.boot_11, m = m_11, H)
-
-# ERPT (bootstrap)
-SVAR.ERPT.boot_11 <- SVAR.erpt.boot(SVAR_11, Amat_11, Bmat_11, Yb_11, pmax, H_ERPT, 3, 1, a, R, cumulative = TRUE)
-plot.erpt.boot(SVAR.ERPT.boot_11, H_ERPT)
+Yb <- Yb_11
+m <- m_11
+SVARS(SVAR_11, 3, 1)
+graficos(SVAR_11, 800, 800)
 
 
 # Punto 11: segundo ordenamiento ####
@@ -387,32 +384,40 @@ for (i in 1:m_11b) {
 # SVAR estimation (AB model configuration)
 SVAR_11b <- SVAR(VAR_11b, Amat = Amat_11b, Bmat = Bmat_11b, lrtest = FALSE)
 
-# Reportamos los resultados del modelo
-m <- m_11b
-N <- N_11b #Hay que redifinir para que funcione la función SVAR.hd
+# Punto 11, segundo ordenamiento: resultados ####
 a <- 0.95 # Confidence level
-R <- 1000 # No. of bootstrap replications
-
+R <- 500 # No. of bootstrap replications
 Yb_11b <- boot.rb.replicate(VAR_11b, Yd0_11b, pmax, R)
-SVAR.SIRF.boot_11b <- SVAR.sirf.boot(SVAR_11b, Amat_11b, Bmat_11b, Yb_11b, pmax, H, a, R)
-plot.sirf.boot(SVAR.SIRF.boot_11b, m = m_11b, H)
+N <- N_11b
+m <- m_11b
+Yb <- Yb_11b
+m <- m_11
+Amat <- Amat_11b
+Bmat <- Bmat_11b
+SVARS(SVAR_11b, 3, 2)
+graficos(SVAR_11b, 800, 800)
 
-# Cumulative IRF (bootstrap)
-SVAR.SIRF.c.boot_11b <- SVAR.sirf.boot(SVAR_11b, Amat_11b, Bmat_11b, Yb_11b, pmax, H, a, R, cumulative = TRUE)
-plot.sirf.boot(SVAR.SIRF.c.boot_11b, m = m_11b , H)
-
-# FEVD (bootstrap)
-SVAR.FEVD.boot_11b <- SVAR.fevd.boot(SVAR_11b, Amat_11b, Bmat_11b, Yb_11b, pmax, H, a, R)
-plot.fevd.boot(SVAR.FEVD.boot_11b, m = m_11b, H)
-
-# ERPT (bootstrap)
-SVAR.ERPT.boot_11b <- SVAR.erpt.boot(SVAR_11b, Amat_11b, Bmat_11b, Yb_11b, pmax, H_ERPT, 3, 1, a, R, cumulative = TRUE)
-plot.erpt.boot(SVAR.ERPT.boot_11, H_ERPT)
 
 
 #Punto 12: primer ordenamiento ####
 #Tomamos como períodos con controles de capitales al período octubre 2011-diciembre2015 y desde septiembre 2019.
 #Fuentes: AFIP con la Resolución General 3210 y la Resolución General 3819 , Poder Ejecutivo Nacional con DNU 19/609
+#Variables dummies:
+library(tstools) 
+dummy_cepo1 <- create_dummy_ts(end_basic = c(2019,12), dummy_start = c(2011,10), dummy_end =c(2015,12), sp= NULL, start_basic = c(2004, 01), frequency = 12)
+dummy_cepo2 <- create_dummy_ts(end_basic = c(2019,12), dummy_start = c(2019,09), dummy_end =c(2019,12), sp= NULL, start_basic = c(2004, 01), frequency = 12)
+
+#Creamos la variable de la brecha que toma valor 0 cuando no hay controles de capitales:
+brecha_con_cepo1 <- brecha_log*dummy_cepo1
+brecha_con_cepo1 <- window(brecha_con_cepo1, end = c(2019, 08))
+brecha_con_cepo2 <- brecha_log*dummy_cepo2
+brecha_con_cepo2 <- window(brecha_con_cepo2, start = c(2019, 09))
+brecha_con_cepo_log <- concat_ts(brecha_con_cepo1, brecha_con_cepo2)
+#Eliminamos variables intermedias:
+remove(brecha_con_cepo1, brecha_con_cepo2)
+#Volvemos a llamar al paquete, para evitar <<enmascaramientos>> con paquete ts
+library(vars)
+
 
 #Variables
 Yl.f_12 <- cbind(er_log, brecha_con_cepo_log, pc_log) 
@@ -458,28 +463,18 @@ for (i in 1:m_12) {
 # SVAR estimation (AB model configuration)
 SVAR_12 <- SVAR(VAR_12, Amat = Amat_12, Bmat = Bmat_12, lrtest = FALSE)
 
-
-# Replicación con bootstrap y gráfico final con bandas de confianza
+# Punto 12, primer ordenamiento: resultados ####
 a <- 0.95 # Confidence level
-R <- 1000 # No. of bootstrap replications
-
+R <- 500 # No. of bootstrap replications
 Yb_12 <- boot.rb.replicate(VAR_12, Yd0_12, pmax, R)
 N <- N_12
 m <- m_12
-SVAR.SIRF.boot_12 <- SVAR.sirf.boot(SVAR_12, Amat_12, Bmat_12, Yb_12, pmax, H, a, R)
-plot.sirf.boot(SVAR.SIRF.boot_12, m = m_12, H)
-
-# Cumulative IRF (bootstrap)
-SVAR.SIRF.c.boot_12 <- SVAR.sirf.boot(SVAR_12, Amat_12, Bmat_12, Yb_12, pmax, H, a, R, cumulative = TRUE)
-plot.sirf.boot(SVAR.SIRF.c.boot_12, m = m_12 , H)
-
-# FEVD (bootstrap)
-SVAR.FEVD.boot_12 <- SVAR.fevd.boot(SVAR_12, Amat_12, Bmat_12, Yb_12, pmax, H, a, R)
-plot.fevd.boot(SVAR.FEVD.boot_12, m = m_12, H)
-
-# ERPT (bootstrap)
-SVAR.ERPT.boot_12 <- SVAR.erpt.boot(SVAR_12, Amat_12, Bmat_12, Yb_12, pmax, H_ERPT, 3, 2, a, R, cumulative = TRUE) # DUDA: Acá puse el 4 en vez del 3 porque sino había un problema con las dimensiones y no estimaba, pero NO ESTOY muy seguro. No me termina de quedar claro qué representan estos argumentos (los números) en la función.
-plot.erpt.boot(SVAR.ERPT.boot_12, H_ERPT)
+Yb <- Yb_12
+Amat <- Amat_12
+Bmat <- Bmat_12
+m <- m_12
+SVARS(SVAR_12, 3, 1)
+graficos(SVAR_12, 800, 800)
 
 # Punto 12: segundo ordenamiento ####
 
@@ -528,25 +523,16 @@ for (i in 1:m_12) {
 # SVAR estimation (AB model configuration)
 SVAR_12b <- SVAR(VAR_12b, Amat = Amat_12b, Bmat = Bmat_12b, lrtest = FALSE)
 
-
-# Replicación con bootstrap y gráfico final con bandas de confianza
+# Punto 12, segundo ordenamiento: resultados ####
 a <- 0.95 # Confidence level
-R <- 1000 # No. of bootstrap replications
-
+R <- 500 # No. of bootstrap replications
 Yb_12b <- boot.rb.replicate(VAR_12b, Yd0_12b, pmax, R)
 N <- N_12b
 m <- m_12b
-SVAR.SIRF.boot_12b <- SVAR.sirf.boot(SVAR_12b, Amat_12b, Bmat_12b, Yb_12b, pmax, H, a, R)
-plot.sirf.boot(SVAR.SIRF.boot_12b, m = m_12b, H)
+Yb <- Yb_12b
+Amat <- Amat_12b
+Bmat <- Bmat_12b
+m <- m_12b
+SVARS(SVAR_12b, 3, 2)
+graficos(SVAR_12b, 800, 800)
 
-# Cumulative IRF (bootstrap)
-SVAR.SIRF.c.boot_12b <- SVAR.sirf.boot(SVAR_12b, Amat_12b, Bmat_12, Yb_12, pmax, H, a, R, cumulative = TRUE)
-plot.sirf.boot(SVAR.SIRF.c.boot_12b, m = m_12b , H)
-
-# FEVD (bootstrap)
-SVAR.FEVD.boot_12b <- SVAR.fevd.boot(SVAR_12b, Amat_12b, Bmat_12b, Yb_12b, pmax, H, a, R)
-plot.fevd.boot(SVAR.FEVD.boot_12b, m = m_12b, H)
-
-# ERPT (bootstrap)
-SVAR.ERPT.boot_12b <- SVAR.erpt.boot(SVAR_12b, Amat_12b, Bmat_12b, Yb_12b, pmax, H_ERPT, 3, 2, a, R, cumulative = TRUE) # DUDA: Acá puse el 4 en vez del 3 porque sino había un problema con las dimensiones y no estimaba, pero NO ESTOY muy seguro. No me termina de quedar claro qué representan estos argumentos (los números) en la función.
-plot.erpt.boot(SVAR.ERPT.boot_12b, H_ERPT)
